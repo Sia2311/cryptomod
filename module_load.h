@@ -4,7 +4,7 @@
 #include <vector>
 using namespace std;
 
-struct CipherPLugin{
+struct CipherPlugin{
     void* handle;
     string name;
     string description;
@@ -13,5 +13,5 @@ struct CipherPLugin{
     const char* (*decrypt)(const char*, const char*);
 };
 
-vector<CipherPLugin> loadPlugins(const string& directory);
-void unload_plugins(vector<CipherPLugin>& plugins);
+vector<CipherPlugin> loadPlugins(const string& directory);
+void unload_plugins(vector<CipherPlugin>& plugins);

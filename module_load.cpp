@@ -4,8 +4,8 @@
 #include <iostream>
 using namespace std;
 // создаём вектор всех загруженных плагинов
-vector<CipherPLugin> loadPlugins(const string& directory){
-    vector<CipherPLugin> plugins;
+vector<CipherPlugin> loadPlugins(const string& directory){
+    vector<CipherPlugin> plugins;
 
     //бежим по папке и оставляем только .so
     for(const auto& entry : filesystem::directory_iterator(directory)){
@@ -30,7 +30,7 @@ vector<CipherPLugin> loadPlugins(const string& directory){
             dlclose(handle);
         }
         //сохраняем работающий плагин
-        plugins.push_back(CipherPLugin{
+        plugins.push_back(CipherPlugin{
             handle, get_name(),
             get_decription ? get_decription() : "Описания нет",
             encrypt
@@ -40,7 +40,7 @@ vector<CipherPLugin> loadPlugins(const string& directory){
 }
 
 // освобождаем память связанную с .so
-void unload_plugins(vector<CipherPLugin>& plugins){
+void unload_plugins(vector<CipherPlugin>& plugins){
     for (auto& plugin : plugins){
         if(plugin.handle){
             dlclose(plugin.handle);
