@@ -33,7 +33,8 @@ vector<CipherPlugin> loadPlugins(const string& directory){
         plugins.push_back(CipherPlugin{
             handle, get_name(),
             get_decription ? get_decription() : "Описания нет",
-            encrypt
+            encrypt,
+            decrypt
         });
     }
     return plugins;

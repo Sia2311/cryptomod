@@ -1,8 +1,8 @@
 #include "CipherInterface.h"
 #include <string>
 #include <cstring>
-#include <stdexcept>
-#include <cstdlib>    
+#include <cstdlib>
+#include <cstdio>  
 
 using namespace std;
 
@@ -10,14 +10,16 @@ extern "C" {
 
     const char* encrypt(const char* text, const char* key) {
         if (!text || !key) {
-            throw invalid_argument("Один из аргументов равен null");
+            fprintf(stderr, "[xor] Ошибка: Один из аргументов равен null\n");
+            return nullptr;
         }
 
         size_t textLen = strlen(text);
         size_t keyLen = strlen(key);
 
         if (keyLen == 0) {
-            throw invalid_argument("Ваш ключ пуст!");
+            fprintf(stderr, "[xor] Ошибка: Ключ пуст\n");
+            return nullptr;
         }
 
         string result;
@@ -27,10 +29,11 @@ extern "C" {
             result[i] = text[i] ^ key[i % keyLen];
         }
 
-        return strdup(result.c_str());  //возвращаем копию в куче
+        return strdup(result.c_str());  // выделяем копию строки в куче
     }
 
     const char* decrypt(const char* text, const char* key) {
+        // XOR шифрование симметрично — используем ту же функцию
         return encrypt(text, key);
     }
 

@@ -1,108 +1,115 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+#include <iomanip>
+#include <string>
 #include "utils.h"
 #include "module_load.h"
-#include "cipherSession.h"
 
 using namespace std;
 
-enum class MainMenu {
-    SELECT_CIPHER = 1,
-    EXIT
-};
-
 int main() {
     setlocale(LC_ALL, "RU");
+
+    const char* fixedKey = "DEMO_KEY";
     bool running = true;
 
     while (running) {
+        auto plugins = loadPlugins("./plugins");
         try {
-            int code;
-            bool ValidInput = false;
-            bool firsttime = true;
+            cout << "\n--------- Главное меню --------\n";
+            for (size_t i = 0; i < plugins.size(); ++i) {
+                cout << i + 1 << ". " << plugins[i].name << "\n";
+            }
+            cout << plugins.size() + 1 << ". Выход из программы\n";
 
-            while (!ValidInput) {
-                if (firsttime) {
-                    cout << "\n--------- Главное меню --------\n";
-                    cout << "Выберите действие:\n";
-                    cout << "1. Выбрать и использовать шифр\n";
-                    cout << "2. Выход из программы\n";
-                }
+            cout << "> ";
+            int choice;
+            cin >> choice;
+            clearCin();
 
-                cout << "> ";
-                cin >> code;
+            if (cin.fail()) {
+                cout << "Ошибка ввода\n";
                 clearCin();
-                firsttime = false;
-
-                if (cin.fail()) {
-                    cout << "Ошибка: Введите число от 1 до 2\n";
-                    clearCin();
-                    continue;
-                }
-
-                auto task = static_cast<MainMenu>(code);
-
-                switch (task) {
-                    case MainMenu::SELECT_CIPHER: {
-                        auto plugins = loadPlugins("./plugins");
-
-                        if (plugins.empty()) {
-                            cout << "Нет доступных шифров.\n";
-                            pause();
-                            break;
-                        }
-
-                        cout << "\nДоступные шифры:\n";
-                        for (size_t i = 0; i < plugins.size(); ++i) {
-                            cout << i + 1 << ". " << plugins[i].name << "\n";
-                        }
-
-                        cout << "Выберите шифр: ";
-                        int index;
-                        cin >> index;
-                        clearCin();
-
-                        if (index < 1 || index > static_cast<int>(plugins.size())) {
-                            cout << "Неверный номер.\n";
-                            pause();
-                            break;
-                        }
-
-                        run_cipher_session(plugins[index - 1]);
-
-                        unload_plugins(plugins);
-                        break;
-                    }
-
-                    case MainMenu::EXIT:
-                        cout << "Выход из программы...\n";
-                        running = false;
-                        break;
-
-                    default:
-                        cout << "Нет такого действия! Повторите ввод.\n";
-                        continue;
-                }
-
-                ValidInput = true;
-                firsttime = true;
-
-                if (running && task != MainMenu::EXIT) {
-                    pause();
-                }
+                continue;
             }
 
+            if (choice == static_cast<int>(plugins.size()) + 1) {
+                cout << "Выход...\n";
+                running = false;
+                break;
+            }
+
+            if (choice < 1 || choice > static_cast<int>(plugins.size())) {
+                cout << "Неверный выбор\n";
+                continue;
+            }
+
+            CipherPlugin& cipher = plugins[choice - 1];
+            cout << "[DEBUG] Выбран шифр: " << cipher.name << "\n";
+
+            // Проверка валидности указателей
+            cout << "[DEBUG] Проверка функций:\n";
+            cout << "  encrypt: " << (void*)cipher.encrypt << "\n";
+            cout << "  decrypt: " << (void*)cipher.decrypt << "\n";
+            cout << "  name:    " << cipher.name << "\n";
+            cout << "  desc:    " << cipher.description << "\n";
+
+            string inputText;
+            cout << "Введите текст: ";
+            getline(cin, inputText);
+            cout << "[DEBUG] Введённый текст: \"" << inputText << "\"\n";
+
+            if (inputText.empty()) {
+                cerr << "Пустой ввод!\n";
+                continue;
+            }
+
+            cout << "[DEBUG] Вызов encrypt()...\n";
+            const char* encrypted = cipher.encrypt(inputText.c_str(), fixedKey);
+            cout << "[DEBUG] encrypt() вернул: " << (void*)encrypted << "\n";
+
+            if (!encrypted) {
+                cerr << "Ошибка при шифровании (null)\n";
+                continue;
+            }
+
+            cout << "[DEBUG] Вызов decrypt()...\n";
+            const char* decrypted = cipher.decrypt(encrypted, fixedKey);
+            cout << "[DEBUG] decrypt() вернул: " << (void*)decrypted << "\n";
+
+            if (!decrypted) {
+                cerr << "Ошибка при расшифровке (null)\n";
+                free((void*)encrypted);
+                continue;
+            }
+
+            cout << "\n Зашифрованный текст: ";
+            for (int i = 0; encrypted[i] != '\0'; ++i) {
+                cout << setw(2) << setfill('0') << hex << uppercase
+                     << (int)(unsigned char)encrypted[i] << " ";
+            }
+            cout << dec << "\n";
+
+            cout << " Расшифрованный текст: " << decrypted << "\n";
+
+            free((void*)encrypted);
+            free((void*)decrypted);
+            pause();
+
+            unload_plugins(plugins);
+
         } catch (const exception& ex) {
-            cerr << "Ошибка: " << ex.what() << endl;
+            cerr << "[EXCEPTION] " << ex.what() << "\n";
             clearCin();
             pause();
         } catch (...) {
-            cerr << "Неизвестная ошибка\n";
+            cerr << "[EXCEPTION] Неизвестная ошибка\n";
             clearCin();
             pause();
         }
     }
 
+    cout << "[DEBUG] Программа завершена.\n";
     return 0;
 }

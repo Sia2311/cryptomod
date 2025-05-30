@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <limits>
-#include <iomanip> 
+#include <iomanip>
 
 using namespace std;
 
@@ -16,7 +16,7 @@ enum class CipherAction {
 
 void run_cipher_session(CipherPlugin& cipher) {
     bool inSession = true;
-    const char* fixedKey = "DEMO_KEY"; 
+    const char* fixedKey = "DEMO_KEY";
 
     while (inSession) {
         try {
@@ -53,11 +53,24 @@ void run_cipher_session(CipherPlugin& cipher) {
 
                         try {
                             const char* encrypted = cipher.encrypt(inputText.c_str(), fixedKey);
+                            if (!encrypted) {
+                                cerr << "Ошибка: шифратор вернул null\n";
+                                pause();
+                                break;
+                            }
+
                             const char* decrypted = cipher.decrypt(encrypted, fixedKey);
+                            if (!decrypted) {
+                                cerr << "Ошибка: дешифратор вернул null\n";
+                                free((void*)encrypted);
+                                pause();
+                                break;
+                            }
 
                             cout << "\n Зашифрованный текст: ";
                             for (int i = 0; encrypted[i] != '\0'; ++i) {
-                                cout << setw(2) << setfill('0') << hex << uppercase << (int)(unsigned char)encrypted[i] << " ";
+                                cout << setw(2) << setfill('0') << hex << uppercase
+                                     << (int)(unsigned char)encrypted[i] << " ";
                             }
                             cout << dec << endl;
 
