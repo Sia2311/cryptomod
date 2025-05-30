@@ -65,8 +65,17 @@ int main() {
                 continue;
             }
 
+            // 🔑 Ввод ключа
+            string userKey;
+            cout << "Введите ключ (Enter для значения по умолчанию): ";
+            getline(cin, userKey);
+            if (userKey.empty()) {
+                userKey = fixedKey;
+            }
+
+            // Шифрование
             cout << "[DEBUG] Вызов encrypt()...\n";
-            const char* encrypted = cipher.encrypt(inputText.c_str(), fixedKey);
+            const char* encrypted = cipher.encrypt(inputText.c_str(), userKey.c_str());
             cout << "[DEBUG] encrypt() вернул: " << (void*)encrypted << "\n";
 
             if (!encrypted) {
@@ -74,8 +83,9 @@ int main() {
                 continue;
             }
 
+            // Дешифрование
             cout << "[DEBUG] Вызов decrypt()...\n";
-            const char* decrypted = cipher.decrypt(encrypted, fixedKey);
+            const char* decrypted = cipher.decrypt(encrypted, userKey.c_str());
             cout << "[DEBUG] decrypt() вернул: " << (void*)decrypted << "\n";
 
             if (!decrypted) {
@@ -84,7 +94,8 @@ int main() {
                 continue;
             }
 
-            cout << "\n Зашифрованный текст: ";
+            // Вывод результата
+            cout << "\n Зашифрованный текст (hex): ";
             for (int i = 0; encrypted[i] != '\0'; ++i) {
                 cout << setw(2) << setfill('0') << hex << uppercase
                      << (int)(unsigned char)encrypted[i] << " ";
@@ -93,6 +104,7 @@ int main() {
 
             cout << " Расшифрованный текст: " << decrypted << "\n";
 
+            // Очистка
             free((void*)encrypted);
             free((void*)decrypted);
             pause();
