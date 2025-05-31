@@ -76,17 +76,23 @@ const char* encrypt(const char* text, const char* key){
 const char* decrypt (const char* text, const char* key){
     string hex(text);
     string Byte;
-
-    // hex в байты
-    for(int i = 0; i < hex.size(); i +=2){
+    if (hex.size() % 2 != 0) return "";
+    
+    for (int i = 0; i < hex.size(); i += 2) {
         char high = hex[i];
         char low = hex[i + 1];
-
-        int h = (high >= '0' && high <= '9') ? high - '0' : high - 'a' + 10;
-        int l = (low >= '0' && low <= '9') ? low - '0' : low - 'a' + 10;
-
-        Byte.push_back(static_cast<char>((h << 4) | 1));
+    
+        int h = (high >= '0' && high <= '9') ? high - '0' :
+                (high >= 'A' && high <= 'F') ? high - 'A' + 10 :
+                (high >= 'a' && high <= 'f') ? high - 'a' + 10 : 0;
+    
+        int l = (low >= '0' && low <= '9') ? low - '0' :
+                (low >= 'A' && low <= 'F') ? low - 'A' + 10 :
+                (low >= 'a' && low <= 'f') ? low - 'a' + 10 : 0;
+    
+        Byte.push_back(static_cast<char>((h << 4) | l));
     }
+    
     //мастерим табличку дешифра
     vector<uint8_t> Alphabet = buildingAlphabet(key);
     uint8_t decryptMap[256];
