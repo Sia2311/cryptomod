@@ -11,6 +11,7 @@ struct CipherPlugin{
 
     const char* (*encrypt)(const char*, const char*);
     const char* (*decrypt)(const char*, const char*);
+    bool returnHex;
 };
 
 vector<CipherPlugin> loadPlugins(const string& directory);

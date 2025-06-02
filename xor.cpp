@@ -44,4 +44,7 @@ extern "C" {
     const char* get_description() {
         return "Побайтовое шифрование с ключом. Симметричное.";
     }
+    bool returnHex(){ 
+        return false;  // false если хекс нужен
+    }
 }

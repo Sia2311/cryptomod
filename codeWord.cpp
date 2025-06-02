@@ -34,23 +34,7 @@ vector<uint8_t> buildingAlphabet (const string& key){
     return result;
 }
 
-string to_hex(const string& message){
-    string output;
-    output.reserve(message.size()*2);
-    for (unsigned char i : message ){
-        int high = i/16; // старшие 4 бита
-        int low = i%16; // младшие 4 бита
-
-        char first = (high < 10) ? ('0' + high) : ('A' + high - 10);
-        char second = (low <10) ? ('0'+ low) : ('A' + low - 10);
-
-        output +=first;
-        output+=second;
-        }
-        return output;
-    }
-
-    extern "C" {
+extern "C" {
 
 const char* encrypt(const char* text, const char* key){
     if (!text || !key) return "";
@@ -61,54 +45,47 @@ const char* encrypt(const char* text, const char* key){
     for(int i = 0; i < 256; ++i){
         encrypt_map[i] = newAlphabet[i];
     }
+
     string input(text);
     string encrypted;
     encrypted.reserve(input.size());
 
-    //шифруем
+    // шифруем
     for (unsigned char c : input){
         encrypted.push_back(encrypt_map[c]);
     }
-    string output = to_hex(encrypted);
-    return strdup(output.c_str());
+
+    return strdup(encrypted.c_str()); // возвращаем байты без hex
 }
 
-const char* decrypt (const char* text, const char* key){
-    string hex(text);
-    string Byte;
-    if (hex.size() % 2 != 0) return "";
-    
-    for (int i = 0; i < hex.size(); i += 2) {
-        char high = hex[i];
-        char low = hex[i + 1];
-    
-        int h = (high >= '0' && high <= '9') ? high - '0' :
-                (high >= 'A' && high <= 'F') ? high - 'A' + 10 :
-                (high >= 'a' && high <= 'f') ? high - 'a' + 10 : 0;
-    
-        int l = (low >= '0' && low <= '9') ? low - '0' :
-                (low >= 'A' && low <= 'F') ? low - 'A' + 10 :
-                (low >= 'a' && low <= 'f') ? low - 'a' + 10 : 0;
-    
-        Byte.push_back(static_cast<char>((h << 4) | l));
-    }
-    
-    //мастерим табличку дешифра
+const char* decrypt(const char* text, const char* key){
+    if (!text || !key) return "";
+
+    string Byte(text);
+
+    // мастерим табличку дешифра
     vector<uint8_t> Alphabet = buildingAlphabet(key);
     uint8_t decryptMap[256];
     for(int i = 0; i < 256; ++i){
         decryptMap[Alphabet[i]] = static_cast<uint8_t>(i);
     }
-    //дешифруем
+
+    // дешифруем
     string result;
     result.reserve(Byte.size());
     for(unsigned char c : Byte){
         result.push_back(decryptMap[c]);
     }
+
     return strdup(result.c_str());
 }
 
 const char* get_name() {
     return "Шифр кодового слова";
 }
-    }
+
+bool returnHex() {
+    return false;
+}
+
+}

@@ -3,47 +3,52 @@
 #include <dlfcn.h>
 #include <iostream>
 using namespace std;
-// создаём вектор всех загруженных плагинов
-vector<CipherPlugin> loadPlugins(const string& directory){
+
+vector<CipherPlugin> loadPlugins(const string& directory) {
     vector<CipherPlugin> plugins;
 
-    //бежим по папке и оставляем только .so
-    for(const auto& entry : filesystem::directory_iterator(directory)){
+    for (const auto& entry : filesystem::directory_iterator(directory)) {
+        if (entry.path().extension() != ".so") continue;
 
-        if(entry.path().extension() != ".so") continue;
-        // загружаем .so в память
         void* handle = dlopen(entry.path().c_str(), RTLD_LAZY);
-
-        if(!handle){
-            cerr << "Ошибка: " << dlerror() << "\n";
+        if (!handle) {
+            cerr << "Ошибка загрузки: " << dlerror() << "\n";
             continue;
         }
-        // вытаскиваем указатели функций
+
+        // Загружаем функции
         auto get_name = (const char* (*)()) dlsym(handle, "get_name");
-        auto get_decription = (const char* (*)()) dlsym(handle, "get_description");
+        auto get_description = (const char* (*)()) dlsym(handle, "get_description");
         auto encrypt = (const char* (*)(const char*, const char*)) dlsym(handle, "encrypt");
         auto decrypt = (const char* (*)(const char*, const char*)) dlsym(handle, "decrypt");
+        auto return_hex_func = (bool (*)()) dlsym(handle, "returnHex"); 
 
-        //если какой-то функции нет
-        if(!get_name || !encrypt){
+        if (!get_name || !encrypt) {
             cerr << "Битый плагин: " << entry.path() << "\n";
             dlclose(handle);
+            continue;
         }
-        //сохраняем работающий плагин
+
+        string name = get_name();
+        string desc = get_description ? get_description() : "Описания нет";
+        bool returns_hex = return_hex_func ? return_hex_func() : false;
+
         plugins.push_back(CipherPlugin{
-            handle, get_name(),
-            get_decription ? get_decription() : "Описания нет",
+            handle,
+            name,
+            desc,
             encrypt,
-            decrypt
+            decrypt,
+            returns_hex
         });
     }
+
     return plugins;
 }
 
-// освобождаем память связанную с .so
-void unload_plugins(vector<CipherPlugin>& plugins){
-    for (auto& plugin : plugins){
-        if(plugin.handle){
+void unload_plugins(vector<CipherPlugin>& plugins) {
+    for (auto& plugin : plugins) {
+        if (plugin.handle) {
             dlclose(plugin.handle);
             plugin.handle = nullptr;
         }
