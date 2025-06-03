@@ -54,7 +54,7 @@ int main() {
                 throw runtime_error("Ошибка выполнения шифрования/дешифрования.");
             }
 
-            string resultStr(rawResult, input.text.size());
+            string resultStr(rawResult);
             free((void*)rawResult);  // освобождение памяти от плагина
 
             // Вывод результата

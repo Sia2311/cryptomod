@@ -9,40 +9,74 @@
 using namespace std;
 
 // строим новый алфавит по ключу
-vector<uint8_t> buildingAlphabet (const string& key){
-    // базовый аски
+// Строим новый алфавит на основе ключа
+vector<uint8_t> buildingAlphabet(const string& key) {
     vector<uint8_t> base(256);
-    for(int i = 0; i < 256; ++i){
+    for (int i = 0; i < 256; ++i) {
         base[i] = static_cast<uint8_t>(i);
     }
-    set<uint8_t> see;
-    vector<uint8_t> result; // надеюсь здесь когdа-то будет новый алфавит
-    //тутутутуту поглядим на ключ и положим его в веткорок
-    for (char c : key){
+
+    set<uint8_t> seen;
+    vector<uint8_t> result;
+
+    for (char c : key) {
         uint8_t b = static_cast<uint8_t>(c);
-        if(!see.count(b)){
+        if (!seen.count(b)) {
             result.push_back(b);
-            see.insert(b);
+            seen.insert(b);
         }
     }
-    //остальной алфавит
-    for(uint8_t b : base){
-        if(!see.count(b)){
+
+    for (uint8_t b : base) {
+        if (!seen.count(b)) {
             result.push_back(b);
         }
+    }
+
+    return result;
+}
+
+// Перевод строки в HEX без sprintf
+string to_hex(const string& message) {
+    string output;
+    for (unsigned char i : message) {
+        int high = i / 16;
+        int low = i % 16;
+
+        char first = (high < 10) ? ('0' + high) : ('A' + high - 10);
+        char second = (low < 10) ? ('0' + low) : ('A' + low - 10);
+
+        output += first;
+        output += second;
+    }
+    return output;
+}
+
+// Обратное преобразование из HEX в строку
+string from_hex(const string& hex) {
+    string result;
+    if (hex.size() % 2 != 0) return "";
+
+    for (size_t i = 0; i < hex.size(); i += 2) {
+        char first = hex[i];
+        char second = hex[i + 1];
+
+        int high = (first >= 'A') ? (first - 'A' + 10) : (first - '0');
+        int low = (second >= 'A') ? (second - 'A' + 10) : (second - '0');
+
+        result += static_cast<char>((high << 4) + low);
     }
     return result;
 }
 
 extern "C" {
 
-const char* encrypt(const char* text, const char* key){
-    if (!text || !key) return "";
+const char* encrypt(const char* text, const char* key) {
+    if (!text || !key) return nullptr;
 
-    vector<uint8_t>  newAlphabet = buildingAlphabet(key);
-    uint8_t encrypt_map[256]; // ключ байт а значение зашифрованный байт
-
-    for(int i = 0; i < 256; ++i){
+    vector<uint8_t> newAlphabet = buildingAlphabet(key);
+    uint8_t encrypt_map[256];
+    for (int i = 0; i < 256; ++i) {
         encrypt_map[i] = newAlphabet[i];
     }
 
@@ -50,30 +84,30 @@ const char* encrypt(const char* text, const char* key){
     string encrypted;
     encrypted.reserve(input.size());
 
-    // шифруем
-    for (unsigned char c : input){
+    for (unsigned char c : input) {
         encrypted.push_back(encrypt_map[c]);
     }
 
-    return strdup(encrypted.c_str()); // возвращаем байты без hex
+    string hex = to_hex(encrypted);
+    return strdup(hex.c_str());
 }
 
-const char* decrypt(const char* text, const char* key){
-    if (!text || !key) return "";
+const char* decrypt(const char* hexText, const char* key) {
+    if (!hexText || !key) return nullptr;
 
-    string Byte(text);
+    string Byte = from_hex(hexText);
+    if (Byte.empty()) return nullptr;
 
-    // мастерим табличку дешифра
     vector<uint8_t> Alphabet = buildingAlphabet(key);
     uint8_t decryptMap[256];
-    for(int i = 0; i < 256; ++i){
+    for (int i = 0; i < 256; ++i) {
         decryptMap[Alphabet[i]] = static_cast<uint8_t>(i);
     }
 
-    // дешифруем
     string result;
     result.reserve(Byte.size());
-    for(unsigned char c : Byte){
+
+    for (unsigned char c : Byte) {
         result.push_back(decryptMap[c]);
     }
 
@@ -105,7 +139,7 @@ const char* get_description() {
 
 
 bool returnHex() {
-    return false;
+    return true;
 }
 
 }
