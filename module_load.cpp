@@ -23,7 +23,7 @@ vector<CipherPlugin> loadPlugins(const string& directory) {
         auto decrypt = (const char* (*)(const char*, const char*)) dlsym(handle, "decrypt");
         auto return_hex_func = (bool (*)()) dlsym(handle, "returnHex"); 
 
-        if (!get_name || !encrypt) {
+        if (!get_name || !encrypt || !decrypt) {
             cerr << "Битый плагин: " << entry.path() << "\n";
             dlclose(handle);
             continue;
