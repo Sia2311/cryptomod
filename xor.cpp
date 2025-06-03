@@ -108,7 +108,4 @@ const char* decrypt(const char* hexText, const char* key) {
     Ключ: строка (ASCII или UTF-8).)";
     }
     
-    bool returnHex(){ 
-        return true;  // false если хекс нужен
-    }
 }

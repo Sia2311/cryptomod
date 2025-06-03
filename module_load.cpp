@@ -16,12 +16,10 @@ vector<CipherPlugin> loadPlugins(const string& directory) {
             continue;
         }
 
-        // Загружаем функции
         auto get_name = (const char* (*)()) dlsym(handle, "get_name");
         auto get_description = (const char* (*)()) dlsym(handle, "get_description");
         auto encrypt = (const char* (*)(const char*, const char*)) dlsym(handle, "encrypt");
         auto decrypt = (const char* (*)(const char*, const char*)) dlsym(handle, "decrypt");
-        auto return_hex_func = (bool (*)()) dlsym(handle, "returnHex"); 
 
         if (!get_name || !encrypt || !decrypt) {
             cerr << "Битый плагин: " << entry.path() << "\n";
@@ -31,20 +29,19 @@ vector<CipherPlugin> loadPlugins(const string& directory) {
 
         string name = get_name();
         string desc = get_description ? get_description() : "Описания нет";
-        bool returns_hex = return_hex_func ? return_hex_func() : false;
 
         plugins.push_back(CipherPlugin{
             handle,
             name,
             desc,
             encrypt,
-            decrypt,
-            returns_hex
+            decrypt
         });
     }
 
     return plugins;
 }
+
 
 void unload_plugins(vector<CipherPlugin>& plugins) {
     for (auto& plugin : plugins) {

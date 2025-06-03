@@ -138,8 +138,4 @@ const char* get_description() {
 }
 
 
-bool returnHex() {
-    return true;
-}
-
 }

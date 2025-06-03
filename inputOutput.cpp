@@ -2,6 +2,7 @@
 #include "utils.h"
 #include <iostream>
 #include <stdexcept>
+#include "generator.h"
 
 using namespace std;
 
@@ -40,15 +41,8 @@ InputData getUserInput(const CipherPlugin& cipher, const std::string& defaultKey
         clearCin();
 
         if (fileType == 1) {
-            string content = readFile(filename);
-            if (content.empty()) throw runtime_error("Файл пустой или не удалось прочитать: " + filename);
-
-            if (!cipher.returnHex && !data.encrypt) {
-                data.text = hexToString(content);
-            } else {
-                data.text = content;
-            }
-
+            data.text = readFile(filename);
+            if (data.text.empty()) throw runtime_error("Файл пустой или не удалось прочитать: " + filename);
         } else if (fileType == 2) {
             data.text = readBinaryFile(filename);
             if (data.text.empty()) throw runtime_error("Файл пустой или не удалось прочитать: " + filename);
@@ -60,9 +54,14 @@ InputData getUserInput(const CipherPlugin& cipher, const std::string& defaultKey
         throw runtime_error("Неверный режим ввода: ожидалось 1 или 2.");
     }
 
-    cout << "Введите ключ (Enter — по умолчанию): ";
+    cout << "Введите ключ (Enter — автогенерация): ";
     getline(cin, data.key);
-    if (data.key.empty()) data.key = defaultKey;
+    
+    if (data.key.empty()) {
+        data.key = autoGenerateKey(cipher.name, data.text.length());
+        cout << "[Автоключ]: " << data.key << endl;
+    }
+    
 
     if (data.text.empty()) {
         throw runtime_error("Пустой ввод текста.");
@@ -79,8 +78,7 @@ bool outputResult(const string& result, const CipherPlugin& cipher, bool encrypt
 
     if (outputChoice == 1) {
         if (encrypt) {
-            cout << "Результат: " 
-                 << (cipher.returnHex ? result : stringToHex(result)) << "\n";
+            cout << "Результат: " << result << "\n";
         } else {
             cout << "Расшифрованный текст: " << result << "\n";
         }
@@ -91,7 +89,7 @@ bool outputResult(const string& result, const CipherPlugin& cipher, bool encrypt
         string filename;
         getline(cin, filename);
 
-        cout << "Тип файла:\n1. Текстовый (hex)\n2. Бинарный\n> ";
+        cout << "Тип файла:\n1. Текстовый (hex или строка)\n2. Бинарный\n> ";
         int fileType;
         cin >> fileType;
         clearCin();
@@ -99,8 +97,7 @@ bool outputResult(const string& result, const CipherPlugin& cipher, bool encrypt
         bool ok = false;
 
         if (fileType == 1) {
-            string outputData = encrypt && !cipher.returnHex ? stringToHex(result) : result;
-            ok = writeFile(filename, outputData);
+            ok = writeFile(filename, result);
         } else if (fileType == 2) {
             ok = writeBinaryFile(filename, result);
         } else {

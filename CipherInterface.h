@@ -8,8 +8,6 @@ extern "C"{
     
     const char* get_name();
 
-    const char* get_version();
-
     const char* get_description();
 
 }
