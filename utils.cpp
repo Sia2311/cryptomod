@@ -55,6 +55,19 @@ bool writeFile(const string& filename, const string& text){
     return true;
 }
 
+string fromHex(const string& hex) {
+    string result;
+    if (hex.size() % 2 != 0) return "";
+
+    for (size_t i = 0; i < hex.size(); i += 2) {
+        unsigned int byte;
+        if (sscanf(hex.substr(i, 2).c_str(), "%02X", &byte) != 1)
+            return "";
+        result += static_cast<char>(byte);
+    }
+    return result;
+}
+
 void pause() {
     cout << "\nНажмите Enter для возврата...";
     cin.ignore();

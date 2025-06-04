@@ -1,10 +1,32 @@
 #include "inputOutput.h"
 #include "utils.h"
+#include "generator.h"
 #include <iostream>
 #include <stdexcept>
-#include "generator.h"
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
+
+// Преобразование байтов в hex-строку
+string bytesToHex(const string& bytes) {
+    ostringstream oss;
+    for (unsigned char byte : bytes) {
+        oss << hex << setw(2) << setfill('0') << static_cast<int>(byte);
+    }
+    return oss.str();
+}
+
+// Преобразование hex-строки в байты
+string hexToBytes(const string& hex) {
+    string out;
+    for (size_t i = 0; i < hex.length(); i += 2) {
+        string byteStr = hex.substr(i, 2);
+        char byte = static_cast<char>(strtol(byteStr.c_str(), nullptr, 16));
+        out.push_back(byte);
+    }
+    return out;
+}
 
 InputData getUserInput(const CipherPlugin& cipher, const std::string& defaultKey) {
     InputData data;
@@ -35,7 +57,7 @@ InputData getUserInput(const CipherPlugin& cipher, const std::string& defaultKey
         string filename;
         getline(cin, filename);
 
-        cout << "Тип файла:\n1. Текстовый \n2. Бинарный\n> ";
+        cout << "Тип файла:\n1. Текстовый\n2. Бинарный\n> ";
         int fileType;
         cin >> fileType;
         clearCin();
@@ -44,24 +66,23 @@ InputData getUserInput(const CipherPlugin& cipher, const std::string& defaultKey
             data.text = readFile(filename);
             if (data.text.empty()) throw runtime_error("Файл пустой или не удалось прочитать: " + filename);
         } else if (fileType == 2) {
-            data.text = readBinaryFile(filename);
-            if (data.text.empty()) throw runtime_error("Файл пустой или не удалось прочитать: " + filename);
+            string raw = readBinaryFile(filename);
+            if (raw.empty()) throw runtime_error("Файл пустой или не удалось прочитать: " + filename);
+            data.text = bytesToHex(raw);  // Преобразуем в hex
         } else {
             throw runtime_error("Неверный тип файла: ожидалось 1 или 2.");
         }
-
     } else {
         throw runtime_error("Неверный режим ввода: ожидалось 1 или 2.");
     }
 
     cout << "Введите ключ (Enter — автогенерация): ";
     getline(cin, data.key);
-    
+
     if (data.key.empty()) {
         data.key = autoGenerateKey(cipher.name, data.text.length());
         cout << "[Автоключ]: " << data.key << endl;
     }
-    
 
     if (data.text.empty()) {
         throw runtime_error("Пустой ввод текста.");
@@ -99,7 +120,8 @@ bool outputResult(const string& result, const CipherPlugin& cipher, bool encrypt
         if (fileType == 1) {
             ok = writeFile(filename, result);
         } else if (fileType == 2) {
-            ok = writeBinaryFile(filename, result);
+            string raw = hexToBytes(result);  // hex v байты
+            ok = writeBinaryFile(filename, raw);
         } else {
             throw runtime_error("Неверный тип выходного файла.");
         }
