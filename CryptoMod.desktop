@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=CryptoMod
+Comment=Crypto plugin-based encryption tool
+Exec=gnome-terminal -- bash -c "cd /opt/CryptoMod && ./cryptomod"
+Icon=/opt/CryptoMod/icon.png
+Terminal=true
+Categories=Utility;

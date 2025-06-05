@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+# Получить домашнюю директорию установившего пользователя
+USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+DESKTOP_PATH="$USER_HOME/Desktop"
+
+# Скопировать .desktop файл на рабочий стол
+cp /opt/CryptoMod/CryptoMod.desktop "$DESKTOP_PATH/"
+chmod +x "$DESKTOP_PATH/CryptoMod.desktop"
+
+# Отметить ярлык как доверенный (если возможно)
+gio set "$DESKTOP_PATH/CryptoMod.desktop" "metadata::trusted" yes 2>/dev/null || true

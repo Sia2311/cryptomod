@@ -6,10 +6,10 @@
 #include <sstream>
 #include <iomanip>
 #include <cstring>
+#include <cstdint>
 using namespace std;
 
 // строим новый алфавит по ключу
-// Строим новый алфавит на основе ключа
 vector<uint8_t> buildingAlphabet(const string& key) {
     vector<uint8_t> base(256);
     for (int i = 0; i < 256; ++i) {
@@ -52,12 +52,12 @@ string to_hex(const string& message) {
     return output;
 }
 
-// Преобразование HEX-строки обратно в байты
+// Преобразование хекс обратно в байты
 string fromHex(const string& hex) {
     string result;
     if (hex.size() % 2 != 0) return "";
 
-    for (size_t i = 0; i < hex.size(); i += 2) {
+    for (uint64_t i = 0; i < hex.size(); i += 2) {
         unsigned int byte;
         if (sscanf(hex.substr(i, 2).c_str(), "%02X", &byte) != 1)
             return "";
@@ -85,7 +85,6 @@ extern "C" {
             encrypted.push_back(encrypt_map[static_cast<uint8_t>(c)]);
         }
     
-        // Возвращаем HEX-строку как у XOR
         string hex = to_hex(encrypted);
         return strdup(hex.c_str());
     }
@@ -110,8 +109,7 @@ extern "C" {
             result.push_back(decryptMap[static_cast<uint8_t>(c)]);
         }
     
-        // Возвращаем именно бинарный результат (как делает xor)
-        return strdup(result.c_str());  // допустимы любые байты, включая \0
+        return strdup(result.c_str());  
     }
     
 
@@ -127,11 +125,11 @@ const char* get_description() {
 Каждый символ исходного текста заменяется на байт из нового алфавита с тем же индексом.
 
 Пример:
-Ключ:  SIMPLE
-Первые байты нового алфавита:  'S', 'I', 'M', 'P', 'L', 'E', ...
+Ключ:  ANASTASIA BORISOVNA
+Первые байты нового алфавита:  'A', 'N', 'A', 'S', 'T', 'A', ...
 
-Текст:  HELLO
-Результат (в HEX): 42 3F 47 47 4B
+Текст:  AVTF
+Результат (в HEX): 38 55 50 3D
 
 Для расшифровки используется тот же ключ — алфавит восстанавливается в исходном порядке.
 

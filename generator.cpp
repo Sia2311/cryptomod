@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <cstdint>
 using namespace std;
 
 string generateRandomKey() {
@@ -19,23 +20,23 @@ string generateRandomKey() {
     uniform_int_distribution<> lenDist(10, 100);
     uniform_int_distribution<> charDist(0, charset.size() - 1);
 
-    size_t length = lenDist(gen);
+    uint64_t length = lenDist(gen);
     string key;
     key.reserve(length * 2);  // запас с учётом многобайтовых символов
 
-    for (size_t i = 0; i < length; ++i) {
+    for (uint64_t i = 0; i < length; ++i) {
         key += charset[charDist(gen)];
     }
 
     return key;
 }
 
-string autoGenerateKey(const string& cipherName, size_t textLength) {
+string autoGenerateKey(const string& cipherName, uint64_t textLength) {
     if (cipherName.find("Скитала") != string::npos) {
-        int guess = clamp((int)sqrt(textLength), 2, 50);
+        int guess = clamp((int)sqrt(textLength), 2, 100);
         return to_string(guess);
     } else {
-        return generateRandomKey();  // случайная длина 10–100
+        return generateRandomKey();  
     }
 }
 

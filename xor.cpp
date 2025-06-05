@@ -3,11 +3,12 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>  
+#include <cstdint>
 
 using namespace std;
 
 extern "C" {
-// Преобразование бинарных данных в HEX-строку
+// преобразование бинарников в хекс
 string to_hex(const string& message) {
     string output;
     for (unsigned char i : message) {
@@ -21,12 +22,12 @@ string to_hex(const string& message) {
 }
 
 
-// Преобразование HEX-строки обратно в байты
+// преобразование хекс в байты
 string fromHex(const string& hex) {
     string result;
     if (hex.size() % 2 != 0) return "";
 
-    for (size_t i = 0; i < hex.size(); i += 2) {
+    for (uint64_t i = 0; i < hex.size(); i += 2) {
         unsigned int byte;
         if (sscanf(hex.substr(i, 2).c_str(), "%02X", &byte) != 1)
             return "";
@@ -41,8 +42,8 @@ const char* encrypt(const char* text, const char* key) {
         return nullptr;
     }
 
-    size_t textLen = strlen(text);
-    size_t keyLen = strlen(key);
+    uint64_t textLen = strlen(text);
+    uint64_t keyLen = strlen(key);
 
     if (keyLen == 0) {
         fprintf(stderr, "[xor] Ошибка: Ключ пуст\n");
@@ -52,7 +53,7 @@ const char* encrypt(const char* text, const char* key) {
     string result;
     result.resize(textLen);
 
-    for (size_t i = 0; i < textLen; ++i) {
+    for (uint64_t i = 0; i < textLen; ++i) {
         result[i] = text[i] ^ key[i % keyLen];
     }
 
@@ -72,7 +73,7 @@ const char* decrypt(const char* hexText, const char* key) {
         return nullptr;
     }
 
-    size_t keyLen = strlen(key);
+    uint64_t keyLen = strlen(key);
     if (keyLen == 0) {
         fprintf(stderr, "[xor] Ошибка: Ключ пуст\n");
         return nullptr;
@@ -81,7 +82,7 @@ const char* decrypt(const char* hexText, const char* key) {
     string result;
     result.resize(binary.size());
 
-    for (size_t i = 0; i < binary.size(); ++i) {
+    for (uint64_t i = 0; i < binary.size(); ++i) {
         result[i] = binary[i] ^ key[i % keyLen];
     }
 

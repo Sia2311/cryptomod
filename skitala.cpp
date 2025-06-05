@@ -3,15 +3,15 @@
 #include <vector>
 #include <cmath>
 #include <cstring>
-
+#include <cstdint>
 using namespace std;
 
 vector<string> utf8_split(const string& input) {
     vector<string> result;
-    size_t i = 0;
+    uint64_t i = 0;
     while (i < input.size()) {
         unsigned char c = input[i];
-        size_t len = 1;
+        uint64_t len = 1;
 
         if ((c & 0x80) == 0x00) len = 1;           // ASCII
         else if ((c & 0xE0) == 0xC0) len = 2;      // 2 байта

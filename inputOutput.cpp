@@ -2,7 +2,6 @@
 #include "utils.h"
 #include "generator.h"
 #include <iostream>
-#include <stdexcept>
 #include <sstream>
 #include <iomanip>
 
@@ -28,109 +27,145 @@ string hexToBytes(const string& hex) {
     return out;
 }
 
-InputData getUserInput(const CipherPlugin& cipher, const std::string& defaultKey) {
+InputData getUserInput(const CipherPlugin& cipher, const string& defaultKey) {
     InputData data;
 
-    cout << "Режим:\n1. Шифровать\n2. Дешифровать\n> ";
-    int modeChoice;
-    cin >> modeChoice;
-    clearCin();
-
-    if (modeChoice == 1) {
-        data.encrypt = true;
-    } else if (modeChoice == 2) {
-        data.encrypt = false;
-    } else {
-        throw runtime_error("Неверный режим: ожидалось 1 или 2.");
-    }
-
-    cout << "Ввод:\n1. Ввести вручную\n2. Загрузить из файла\n> ";
-    int inputMode;
-    cin >> inputMode;
-    clearCin();
-
-    if (inputMode == 1) {
-        cout << "Введите текст: ";
-        getline(cin, data.text);
-    } else if (inputMode == 2) {
-        cout << "Имя файла: ";
-        string filename;
-        getline(cin, filename);
-
-        cout << "Тип файла:\n1. Текстовый\n2. Бинарный\n> ";
-        int fileType;
-        cin >> fileType;
+    // Выбор режима: шифровать или дешифровать
+    while (true) {
+        cout << "Режим:\n1. Шифровать\n2. Дешифровать\n0. Назад\n> ";
+        int modeChoice;
+        cin >> modeChoice;
         clearCin();
 
-        if (fileType == 1) {
-            data.text = readFile(filename);
-            if (data.text.empty()) throw runtime_error("Файл пустой или не удалось прочитать: " + filename);
-        } else if (fileType == 2) {
-            string raw = readBinaryFile(filename);
-            if (raw.empty()) throw runtime_error("Файл пустой или не удалось прочитать: " + filename);
-            data.text = bytesToHex(raw);  // Преобразуем в hex
+        if (modeChoice == 0) return {};
+        if (modeChoice == 1) {
+            data.encrypt = true;
+            break;
+        } else if (modeChoice == 2) {
+            data.encrypt = false;
+            break;
         } else {
-            throw runtime_error("Неверный тип файла: ожидалось 1 или 2.");
+            cout << "Неверный выбор. Повторите ввод.\n";
         }
-    } else {
-        throw runtime_error("Неверный режим ввода: ожидалось 1 или 2.");
     }
 
-    cout << "Введите ключ (Enter — автогенерация): ";
+    // Ввод текста
+    while (true) {
+        cout << "Ввод:\n1. Ввести вручную\n2. Загрузить из файла\n0. Назад\n> ";
+        int inputMode;
+        cin >> inputMode;
+        clearCin();
+
+        if (inputMode == 0) return {};
+
+        if (inputMode == 1) {
+            cout << "Введите текст: ";
+            getline(cin, data.text);
+            if (data.text.empty()) {
+                cout << "Текст не может быть пустым. Повторите.\n";
+                continue;
+            }
+            break;
+
+        } else if (inputMode == 2) {
+            cout << "Имя файла: ";
+            string filename;
+            getline(cin, filename);
+
+            cout << "Тип файла:\n1. Текстовый\n2. Бинарный\n0. Назад\n> ";
+            int fileType;
+            cin >> fileType;
+            clearCin();
+
+            if (fileType == 0) continue;
+
+            if (fileType == 1) {
+                data.text = readFile(filename);
+                if (data.text.empty()) {
+                    cout << "Файл пустой или не удалось прочитать. Повторите.\n";
+                    continue;
+                }
+            } else if (fileType == 2) {
+                string raw = readBinaryFile(filename);
+                if (raw.empty()) {
+                    cout << "Файл пустой или не удалось прочитать. Повторите.\n";
+                    continue;
+                }
+                data.text = bytesToHex(raw);
+            } else {
+                cout << "Неверный тип. Повторите.\n";
+                continue;
+            }
+            break;
+
+        } else {
+            cout << "Неверный режим ввода. Повторите.\n";
+        }
+    }
+
+    // Ключ
+    cout << "Введите ключ (Enter — автогенерация, 0 — назад): ";
     getline(cin, data.key);
+    if (data.key == "0") return {};
 
     if (data.key.empty()) {
         data.key = autoGenerateKey(cipher.name, data.text.length());
         cout << "[Автоключ]: " << data.key << endl;
     }
 
-    if (data.text.empty()) {
-        throw runtime_error("Пустой ввод текста.");
-    }
-
     return data;
 }
 
 bool outputResult(const string& result, const CipherPlugin& cipher, bool encrypt) {
-    cout << "Вывод:\n1. На экран\n2. В файл\n> ";
-    int outputChoice;
-    cin >> outputChoice;
-    clearCin();
-
-    if (outputChoice == 1) {
-        if (encrypt) {
-            cout << "Результат: " << result << "\n";
-        } else {
-            cout << "Расшифрованный текст: " << result << "\n";
-        }
-        return true;
-
-    } else if (outputChoice == 2) {
-        cout << "Имя выходного файла: ";
-        string filename;
-        getline(cin, filename);
-
-        cout << "Тип файла:\n1. Текстовый (hex или строка)\n2. Бинарный\n> ";
-        int fileType;
-        cin >> fileType;
+    while (true) {
+        cout << "Вывод:\n1. На экран\n2. В файл\n0. Назад\n> ";
+        int outputChoice;
+        cin >> outputChoice;
         clearCin();
 
-        bool ok = false;
+        if (outputChoice == 0) return false;
 
-        if (fileType == 1) {
-            ok = writeFile(filename, result);
-        } else if (fileType == 2) {
-            string raw = hexToBytes(result);  // hex v байты
-            ok = writeBinaryFile(filename, raw);
+        if (outputChoice == 1) {
+            cout << (encrypt ? "Результат: " : "Расшифрованный текст: ") << result << "\n";
+            pause();
+            return true;
+
+        } else if (outputChoice == 2) {
+            cout << "Имя выходного файла: ";
+            string filename;
+            getline(cin, filename);
+
+            cout << "Тип файла:\n1. Текстовый \n2. Бинарный\n0. Назад\n> ";
+            int fileType;
+            cin >> fileType;
+            clearCin();
+
+            if (fileType == 0) continue;
+
+
+            bool ok = false;
+
+            if (fileType == 1) {
+                ok = writeFile(filename, result);
+            } else if (fileType == 2) {
+                string raw = hexToBytes(result);
+                ok = writeBinaryFile(filename, raw);
+            } else {
+                cout << "Неверный тип. Повторите.\n";
+                continue;
+            }
+
+            if (!ok) {
+                cout << "Ошибка записи. Повторите.\n";
+                continue;
+            }
+
+            cout << "Результат успешно сохранён.\n";
+            pause();
+            return true;
+
         } else {
-            throw runtime_error("Неверный тип выходного файла.");
+            cout << "Неверный выбор. Повторите.\n";
         }
-
-        if (!ok) throw runtime_error("Ошибка записи в файл: " + filename);
-        cout << "Результат успешно сохранён.\n";
-        return true;
-
-    } else {
-        throw runtime_error("Неверный режим вывода: ожидалось 1 или 2.");
     }
 }
