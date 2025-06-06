@@ -7,7 +7,7 @@
 
 using namespace std;
 
-// Преобразование байтов в hex-строку
+// Преобразование байтов в хекс строку
 string bytesToHex(const string& bytes) {
     ostringstream oss;
     for (unsigned char byte : bytes) {
@@ -16,10 +16,10 @@ string bytesToHex(const string& bytes) {
     return oss.str();
 }
 
-// Преобразование hex-строки в байты
+// Преобразование хекс строки в байты
 string hexToBytes(const string& hex) {
     string out;
-    for (size_t i = 0; i < hex.length(); i += 2) {
+    for (int i = 0; i < hex.length(); i += 2) {
         string byteStr = hex.substr(i, 2);
         char byte = static_cast<char>(strtol(byteStr.c_str(), nullptr, 16));
         out.push_back(byte);
@@ -27,7 +27,7 @@ string hexToBytes(const string& hex) {
     return out;
 }
 
-InputData getUserInput(const CipherPlugin& cipher, const string& defaultKey) {
+InputData getUserInput(const CipherPlugin& cipher) {
     InputData data;
 
     // Выбор режима: шифровать или дешифровать
@@ -68,7 +68,7 @@ InputData getUserInput(const CipherPlugin& cipher, const string& defaultKey) {
             break;
 
         } else if (inputMode == 2) {
-            cout << "Имя файла: ";
+            cout << "Путь и имя файла: ";
             string filename;
             getline(cin, filename);
 
@@ -82,24 +82,24 @@ InputData getUserInput(const CipherPlugin& cipher, const string& defaultKey) {
             if (fileType == 1) {
                 data.text = readFile(filename);
                 if (data.text.empty()) {
-                    cout << "Файл пустой или не удалось прочитать. Повторите.\n";
+                    cout << "Файл пустой или не удалось прочитать. Повторите.\n ";
                     continue;
                 }
             } else if (fileType == 2) {
                 string raw = readBinaryFile(filename);
                 if (raw.empty()) {
-                    cout << "Файл пустой или не удалось прочитать. Повторите.\n";
+                    cout << "Файл пустой или не удалось прочитать. Повторите.\n ";
                     continue;
                 }
                 data.text = bytesToHex(raw);
             } else {
-                cout << "Неверный тип. Повторите.\n";
+                cout << "Неверный тип. Повторите.\n ";
                 continue;
             }
             break;
 
         } else {
-            cout << "Неверный режим ввода. Повторите.\n";
+            cout << "Неверный режим ввода. Повторите.\n ";
         }
     }
 
@@ -127,11 +127,11 @@ bool outputResult(const string& result, const CipherPlugin& cipher, bool encrypt
 
         if (outputChoice == 1) {
             cout << (encrypt ? "Результат: " : "Расшифрованный текст: ") << result << "\n";
-            pause();
+            userPause();
             return true;
 
         } else if (outputChoice == 2) {
-            cout << "Имя выходного файла: ";
+            cout << "Путь и имя выходного файла: ";
             string filename;
             getline(cin, filename);
 
@@ -161,7 +161,7 @@ bool outputResult(const string& result, const CipherPlugin& cipher, bool encrypt
             }
 
             cout << "Результат успешно сохранён.\n";
-            pause();
+            userPause();
             return true;
 
         } else {

@@ -65,7 +65,7 @@ string fromHex(const string& hex) {
     return result;
 }
 
-void pause() {
+void userPause() {
     cout << "\nНажмите Enter для возврата...";
     cin.ignore();
     cin.get();

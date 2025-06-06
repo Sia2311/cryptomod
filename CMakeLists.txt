@@ -16,7 +16,7 @@ add_executable(cryptomod
     utils.cpp
 )
 
-# Плагины (без префикса lib)
+# Плагины
 add_library(xor SHARED xor.cpp)
 set_target_properties(xor PROPERTIES
     PREFIX ""

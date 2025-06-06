@@ -5,9 +5,14 @@
 #include <cstdio>  
 #include <cstdint>
 
+#ifdef _WIN32
+    #define EXPORT __declspec(dllexport)
+#else
+    #define EXPORT
+#endif
+
 using namespace std;
 
-extern "C" {
 // преобразование бинарников в хекс
 string to_hex(const string& message) {
     string output;
@@ -20,7 +25,6 @@ string to_hex(const string& message) {
     }
     return output;
 }
-
 
 // преобразование хекс в байты
 string fromHex(const string& hex) {
@@ -36,7 +40,9 @@ string fromHex(const string& hex) {
     return result;
 }
 
-const char* encrypt(const char* text, const char* key) {
+extern "C" {
+
+EXPORT const char* encrypt(const char* text, const char* key) {
     if (!text || !key) {
         fprintf(stderr, "[xor] Ошибка: Один из аргументов равен null\n");
         return nullptr;
@@ -61,7 +67,7 @@ const char* encrypt(const char* text, const char* key) {
     return strdup(hexResult.c_str());
 }
 
-const char* decrypt(const char* hexText, const char* key) {
+EXPORT const char* decrypt(const char* hexText, const char* key) {
     if (!hexText || !key) {
         fprintf(stderr, "[xor] Ошибка: Один из аргументов равен null\n");
         return nullptr;
@@ -89,24 +95,24 @@ const char* decrypt(const char* hexText, const char* key) {
     return strdup(result.c_str());
 }
 
-    const char* get_name() {
-        return "Xor шифрование";
-    }
+EXPORT const char* get_name() {
+    return "Xor шифрование";
+}
 
-    const char* get_description() {
-        return R"(XOR — симметричный побитовый шифр, основанный на логической операции исключающего ИЛИ.
-    Каждый байт текста XOR'ится с байтом ключа. Если ключ короче текста, он повторяется по кругу.
-    
-    Результат шифрования в этой программе возвращается в виде HEX-строки.
-    
-    Пример:
-    Текст:  HELLO
-    Ключ:   KEY
-    XOR (в HEX): 03 00 4D CA 3D
-    
-    Тот же ключ используется для дешифрования — повторный XOR возвращает исходный текст.
-    
-    Ключ: строка (ASCII или UTF-8).)";
-    }
-    
+EXPORT const char* get_description() {
+    return R"(XOR — симметричный побитовый шифр, основанный на логической операции исключающего ИЛИ.
+Каждый байт текста XOR ится с байтом ключа. Если ключ короче текста, он повторяется по кругу.
+
+Результат шифрования в этой программе возвращается в виде HEX-строки.
+
+Пример:
+Текст:  HELLO
+Ключ:   KEY
+XOR (в HEX): 03 00 15 07 0A
+
+Тот же ключ используется для дешифрования — повторный XOR возвращает исходный текст.
+
+Ключ: строка (ASCII или UTF-8).)";
+}
+
 }

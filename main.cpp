@@ -2,16 +2,32 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <unistd.h>
 
 #include "utils.h"
 #include "module_load.h"
 #include "inputOutput.h"
+#include "verefication.h"
 
 using namespace std;
 
 int main() {
     setlocale(LC_ALL, "RU");
-    const string fixedKey = "DEMO_KEY";
+
+    //верефикация
+    string keyVereficaton;
+    cout << "Введите путь к изображению-ключу для доступа: ";
+    getline(cin, keyVereficaton);
+
+    if(!verifyImageKey(keyVereficaton)){
+        cout << "Отлично!\n";
+        sleep(3);
+        cerr << "ДО СВИДАНИЯ!!!\n";
+        sleep(3);
+        return 1;
+    }
+    cout << "Ключ принят. Запуск...\n";
+    sleep(3);
 
     try {
         while (true) {
@@ -32,6 +48,7 @@ int main() {
                 if (choice == static_cast<int>(plugins.size()) + 1) {
                     cout << "Выход...\n";
                     unload_plugins(plugins);
+                    sleep(2);
                     return 0;
                 }
 
@@ -49,9 +66,9 @@ int main() {
             bool inCipherMenu = true;
             while (inCipherMenu) {
                 try {
-                    InputData input = getUserInput(cipher, fixedKey);
+                    InputData input = getUserInput(cipher);
                     if (input.text.empty()) {
-                        cout << "[Отмена операции. Возврат в главное меню.]\n";
+                        cout << "Отмена операции. Возврат в главное меню...\n";
                         break;
                     }
 
@@ -61,7 +78,7 @@ int main() {
 
                     if (!rawResult) {
                         cerr << "Ошибка шифрования/дешифрования.\n";
-                        pause();
+                        userPause();
                         break;
                     }
 
@@ -69,14 +86,14 @@ int main() {
                     free((void*)rawResult);
 
                     if (!outputResult(resultStr, cipher, input.encrypt)) {
-                        cout << "[Вывод отменён. Возврат в главное меню.]\n";
+                        cout << "Вывод отменён. Возврат в главное меню.\n";
                         break;
                     }
 
                     inCipherMenu = false;
                 } catch (const exception& ex) {
                     cerr << "[Ошибка]: " << ex.what() << "\nПопробуйте снова.\n";
-                    pause();
+                    userPause();
                 }
             }
 
@@ -84,10 +101,10 @@ int main() {
         }
     } catch (const exception& ex) {
         cerr << "[Критическая ошибка]: " << ex.what() << "\n";
-        pause();
+        userPause();
     } catch (...) {
         cerr << "[Неизвестная ошибка]\n";
-        pause();
+        userPause();
     }
 
     cout << "Завершение работы...\n";

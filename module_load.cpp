@@ -19,12 +19,11 @@
 #endif
 
 using namespace std;
-namespace fs = filesystem;
 
 vector<CipherPlugin> loadPlugins(const string& directory) {
     vector<CipherPlugin> plugins;
 
-    for (const auto& entry : fs::directory_iterator(directory)) {
+    for (const auto& entry : filesystem::directory_iterator(directory)) {
         if (entry.path().extension() != LIB_EXT)
             continue;
 
