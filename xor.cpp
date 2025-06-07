@@ -43,18 +43,9 @@ string fromHex(const string& hex) {
 extern "C" {
 
 EXPORT const char* encrypt(const char* text, const char* key) {
-    if (!text || !key) {
-        fprintf(stderr, "[xor] Ошибка: Один из аргументов равен null\n");
-        return nullptr;
-    }
 
     uint64_t textLen = strlen(text);
     uint64_t keyLen = strlen(key);
-
-    if (keyLen == 0) {
-        fprintf(stderr, "[xor] Ошибка: Ключ пуст\n");
-        return nullptr;
-    }
 
     string result;
     result.resize(textLen);
@@ -68,22 +59,10 @@ EXPORT const char* encrypt(const char* text, const char* key) {
 }
 
 EXPORT const char* decrypt(const char* hexText, const char* key) {
-    if (!hexText || !key) {
-        fprintf(stderr, "[xor] Ошибка: Один из аргументов равен null\n");
-        return nullptr;
-    }
 
     string binary = fromHex(hexText);
-    if (binary.empty()) {
-        fprintf(stderr, "[xor] Ошибка: Невалидный HEX вход\n");
-        return nullptr;
-    }
 
     uint64_t keyLen = strlen(key);
-    if (keyLen == 0) {
-        fprintf(stderr, "[xor] Ошибка: Ключ пуст\n");
-        return nullptr;
-    }
 
     string result;
     result.resize(binary.size());

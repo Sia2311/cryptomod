@@ -17,9 +17,13 @@ const unsigned char expectedBytes[] = {
 };
 
 bool verifyImageKey(const string& path) {
-    string data = readBinaryFile(path);
-    if (data.size() < sizeof(expectedBytes)) {
-        cerr << "Файл слишком короткий для проверки.\n";
+    string data;
+    try{
+        data = readBinaryFile(path);
+    }catch (...){
+        return false;
+    }
+    if(data.size() < sizeof(expectedBytes)){
         return false;
     }
 

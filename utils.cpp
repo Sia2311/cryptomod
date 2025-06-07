@@ -6,47 +6,42 @@
 #include <fstream>
 #include <sstream>
 #include <cstdint>
+#include <stdexcept>
 using namespace std;
 
-// Чтение бинарника
 string readBinaryFile(const string& filename) {
     ifstream file(filename, ios::binary);
     if (!file) {
-        cerr << "Ошибка чтения бинарного файла: " << filename << endl;
-        return "";
+        throw runtime_error("Ошибка чтения бинарного файла: " + filename);
     }
     stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
 }
 
-// запись бинарника
 bool writeBinaryFile(const string& filename, const string& data) {
     ofstream file(filename, ios::binary);
     if (!file) {
-        cerr << "Ошибка записи бинарного файла: " << filename << endl;
-        return false;
+        throw runtime_error("Ошибка записи бинарного файла: " + filename);
     }
     file.write(data.data(), data.size());
     return true;
 }
 
-string readFile(const string& filename){
+string readFile(const string& filename) {
     ifstream file(filename);
-    if(!file){
-        cerr << "Не удалось открыть файл" <<  filename << endl;
-        return "";
+    if (!file) {
+        throw runtime_error("Не удалось открыть файл: " + filename);
     }
     stringstream copy;
     copy << file.rdbuf();
     return copy.str();
 }
 
-bool writeFile(const string& filename, const string& text){
+bool writeFile(const string& filename, const string& text) {
     ofstream file(filename);
-    if(!file){
-        cerr << "Не удалось открыть файл" << filename << endl;
-        return false;
+    if (!file) {
+        throw runtime_error("Не удалось открыть файл: " + filename);
     }
     file << text;
     return true;

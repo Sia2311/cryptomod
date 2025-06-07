@@ -27,7 +27,7 @@ int main() {
         return 1;
     }
     cout << "Ключ принят. Запуск...\n";
-    sleep(3);
+    sleep(1);
 
     try {
         while (true) {
@@ -79,7 +79,7 @@ int main() {
                     if (!rawResult) {
                         cerr << "Ошибка шифрования/дешифрования.\n";
                         userPause();
-                        break;
+                        continue;
                     }
 
                     string resultStr(rawResult);

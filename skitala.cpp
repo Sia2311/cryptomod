@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstring>
 #include <cstdint>
+#include <stdexcept>
+#include <cctype> // для isdigit
 
 using namespace std;
 
@@ -26,7 +28,10 @@ vector<string> utf8_split(const string& input) {
 }
 
 string encrypt_skitale(const string& text, int columns) {
-    if (text.empty() || columns <= 0) return "";
+    if (columns < 2) {
+        throw invalid_argument("[Скитала] Ключ должен быть положительным числом и больше еденицы!");
+    }
+    if (text.empty()) return "";
 
     vector<string> letters = utf8_split(text);
     int rows = static_cast<int>(ceil((double)letters.size() / columns));
@@ -49,6 +54,11 @@ string encrypt_skitale(const string& text, int columns) {
 }
 
 string decrypt_skitale(const string& text, int columns) {
+    if (columns < 2) {
+        throw invalid_argument("[Скитала] Ключ должен быть положительным числом и больше еденицы!");
+    }
+    if (text.empty()) return "";
+
     vector<string> letters = utf8_split(text);
     int rows = static_cast<int>(ceil((double)letters.size() / columns));
     int totalCells = rows * columns;
@@ -73,43 +83,61 @@ string decrypt_skitale(const string& text, int columns) {
     return result;
 }
 
+bool is_positive_integer(const string& str) {
+    if (str.empty()) return false;
+    for (char c : str) {
+        if (!isdigit(c)) return false;
+    }
+    return true;
+}
+
 extern "C" {
 
- const char* encrypt(const char* text, const char* key) {
+const char* encrypt(const char* text, const char* key) {
     if (!text || !key) return nullptr;
 
-    int columns;
-    try {
-        columns = stoi(key);
-    } catch (...) {
+    string keyStr(key);
+    if (!is_positive_integer(keyStr)) {
         fprintf(stderr, "[Скитала] Ключ должен быть числом!\n");
         return nullptr;
     }
 
-    string result = encrypt_skitale(text, columns);
-    return strdup(result.c_str());
+    int columns = stoi(keyStr);
+
+    try {
+        string result = encrypt_skitale(text, columns);
+        return strdup(result.c_str());
+    } catch (const invalid_argument& e) {
+        fprintf(stderr, "%s\n", e.what());
+        return nullptr;
+    }
 }
 
- const char* decrypt(const char* text, const char* key) {
+const char* decrypt(const char* text, const char* key) {
     if (!text || !key) return nullptr;
 
-    int columns;
-    try {
-        columns = stoi(key);
-    } catch (...) {
+    string keyStr(key);
+    if (!is_positive_integer(keyStr)) {
         fprintf(stderr, "[Скитала] Ключ должен быть числом!\n");
         return nullptr;
     }
 
-    string result = decrypt_skitale(text, columns);
-    return strdup(result.c_str());
+    int columns = stoi(keyStr);
+
+    try {
+        string result = decrypt_skitale(text, columns);
+        return strdup(result.c_str());
+    } catch (const invalid_argument& e) {
+        fprintf(stderr, "%s\n", e.what());
+        return nullptr;
+    }
 }
 
- const char* get_name() {
+const char* get_name() {
     return "Скитала (перестановка)";
 }
 
- const char* get_description() {
+const char* get_description() {
     return R"(Скитала — античный шифр перестановки, использовавшийся в Спарте.
 Текст записывается по строкам в таблицу с фиксированным числом столбцов (ключ),
 затем считывается по столбцам, формируя зашифрованную последовательность.
@@ -120,7 +148,8 @@ extern "C" {
 Е Т М И
 Р _ _ _
 
-Шифр: ПЕРРТ ИМ ВИ 
+Шифр: ПЕРРТ ИМ ВИ
+
 
 Ключ: целое число — количество столбцов.)";
 }
