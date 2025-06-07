@@ -14,6 +14,7 @@ add_executable(cryptomod
     inputOutput.cpp
     module_load.cpp
     utils.cpp
+    verefication.cpp
 )
 
 # Плагины
@@ -35,34 +36,26 @@ set_target_properties(codeword PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_OUTPUT_DIR}
 )
 
-# Установка бинарника
+# Установка основного бинарника в /opt/CryptoMod
 install(TARGETS cryptomod DESTINATION /opt/CryptoMod)
 
 # Установка плагинов
-install(FILES
-    ${PLUGIN_OUTPUT_DIR}/xor.so
-    ${PLUGIN_OUTPUT_DIR}/skitala.so
-    ${PLUGIN_OUTPUT_DIR}/codeword.so
-    DESTINATION /opt/CryptoMod/plugins
-)
+install(DIRECTORY ${PLUGIN_OUTPUT_DIR}/ DESTINATION /opt/CryptoMod/plugins FILES_MATCHING PATTERN "*.so")
 
-# Иконка и ярлык
+# Установка ресурсов
 install(FILES
     icon.png
     CryptoMod.desktop
     DESTINATION /opt/CryptoMod
 )
 
-# postinst скрипт
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/postinst DESTINATION /DEBIAN)
-
-# CPack конфигурация
-include(InstallRequiredSystemLibraries)
-
+# Указание postinst-скрипта и генерация DEB
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "cryptomod")
 set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_PACKAGING_INSTALL_PREFIX "/")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "HACKER228")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_SOURCE_DIR}/postinst")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "YourName")
+
+include(InstallRequiredSystemLibraries)
 include(CPack)

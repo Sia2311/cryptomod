@@ -19,7 +19,7 @@ int main() {
     cout << "Введите путь к изображению-ключу для доступа: ";
     getline(cin, keyVereficaton);
 
-    if(!verifyImageKey(keyVereficaton)){
+    if(!verifyImageKey(keyVereficaton) || !checkUSB()){
         cout << "Отлично!\n";
         sleep(3);
         cerr << "ДО СВИДАНИЯ!!!\n";

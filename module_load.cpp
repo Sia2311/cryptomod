@@ -1,22 +1,7 @@
 #include "module_load.h"
 #include <filesystem>
 #include <iostream>
-
-#ifdef _WIN32
-    #include <windows.h>
-    #define LibHandle HMODULE
-    #define libLoad(path) LoadLibraryA(path)
-    #define libFunc GetProcAddress
-    #define libFree FreeLibrary
-    #define LIB_EXT ".dll"
-#else
-    #include <dlfcn.h>
-    #define LibHandle void*
-    #define libLoad(path) dlopen(path, RTLD_LAZY)
-    #define libFunc dlsym
-    #define libFree dlclose
-    #define LIB_EXT ".so"
-#endif
+#include <dlfcn.h>
 
 using namespace std;
 
@@ -24,29 +9,25 @@ vector<CipherPlugin> loadPlugins(const string& directory) {
     vector<CipherPlugin> plugins;
 
     for (const auto& entry : filesystem::directory_iterator(directory)) {
-        if (entry.path().extension() != LIB_EXT)
+        if (entry.path().extension() != ".so")
             continue;
 
         string pathStr = entry.path().string();
-        LibHandle handle = libLoad(pathStr.c_str());
+        void* handle = dlopen(pathStr.c_str(), RTLD_LAZY);
 
         if (!handle) {
-#ifdef _WIN32
-            cerr << "Ошибка загрузки DLL: " << pathStr << "\n";
-#else
             cerr << "Ошибка загрузки SO: " << dlerror() << "\n";
-#endif
             continue;
         }
 
-        auto get_name = (const char* (*)()) libFunc(handle, "get_name");
-        auto get_description = (const char* (*)()) libFunc(handle, "get_description");
-        auto encrypt = (const char* (*)(const char*, const char*)) libFunc(handle, "encrypt");
-        auto decrypt = (const char* (*)(const char*, const char*)) libFunc(handle, "decrypt");
+        auto get_name = reinterpret_cast<const char* (*)()>(dlsym(handle, "get_name"));
+        auto get_description = reinterpret_cast<const char* (*)()>(dlsym(handle, "get_description"));
+        auto encrypt = reinterpret_cast<const char* (*)(const char*, const char*)>(dlsym(handle, "encrypt"));
+        auto decrypt = reinterpret_cast<const char* (*)(const char*, const char*)>(dlsym(handle, "decrypt"));
 
         if (!get_name || !encrypt || !decrypt) {
             cerr << "Битый плагин: " << entry.path() << "\n";
-            libFree(handle);
+            dlclose(handle);
             continue;
         }
 
@@ -68,7 +49,7 @@ vector<CipherPlugin> loadPlugins(const string& directory) {
 void unload_plugins(vector<CipherPlugin>& plugins) {
     for (auto& plugin : plugins) {
         if (plugin.handle) {
-            libFree(plugin.handle);
+            dlclose(plugin.handle);
             plugin.handle = nullptr;
         }
     }

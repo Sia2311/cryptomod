@@ -5,12 +5,6 @@
 #include <cstdio>  
 #include <cstdint>
 
-#ifdef _WIN32
-    #define EXPORT __declspec(dllexport)
-#else
-    #define EXPORT
-#endif
-
 using namespace std;
 
 // преобразование бинарников в хекс
@@ -42,7 +36,7 @@ string fromHex(const string& hex) {
 
 extern "C" {
 
-EXPORT const char* encrypt(const char* text, const char* key) {
+ const char* encrypt(const char* text, const char* key) {
 
     uint64_t textLen = strlen(text);
     uint64_t keyLen = strlen(key);
@@ -58,7 +52,7 @@ EXPORT const char* encrypt(const char* text, const char* key) {
     return strdup(hexResult.c_str());
 }
 
-EXPORT const char* decrypt(const char* hexText, const char* key) {
+ const char* decrypt(const char* hexText, const char* key) {
 
     string binary = fromHex(hexText);
 
@@ -74,11 +68,11 @@ EXPORT const char* decrypt(const char* hexText, const char* key) {
     return strdup(result.c_str());
 }
 
-EXPORT const char* get_name() {
+ const char* get_name() {
     return "Xor шифрование";
 }
 
-EXPORT const char* get_description() {
+ const char* get_description() {
     return R"(XOR — симметричный побитовый шифр, основанный на логической операции исключающего ИЛИ.
 Каждый байт текста XOR ится с байтом ключа. Если ключ короче текста, он повторяется по кругу.
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cstring>
 #include "utils.h"
 
 using namespace std;
@@ -34,4 +35,27 @@ bool verifyImageKey(const string& path) {
     }
 
     return true;
+}
+
+const vector<string> allowedUUIDs = {
+    "B4FE-5315" 
+};
+
+// Проверка, подключена ли флешка с одним из известных UUID
+bool checkUSB() {
+    FILE* fp = popen("lsblk -o UUID", "r");
+    if (!fp) return false;
+
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), fp)) {
+        for (const auto& uuid : allowedUUIDs) {
+            if (strstr(buffer, uuid.c_str())) {
+                pclose(fp);
+                return true;
+            }
+        }
+    }
+
+    pclose(fp);
+    return false;
 }

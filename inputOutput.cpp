@@ -114,15 +114,26 @@ InputData getUserInput(const CipherPlugin& cipher) {
                 }
             }
 
-            // Ключ
-            cout << "Введите ключ (Enter — автогенерация, 0 — назад): ";
-            getline(cin, data.key);
-            if (data.key == "0") return {};
-
-            if (data.key.empty()) {
-                data.key = autoGenerateKey(cipher.name, data.text.length());
-                cout << "[Автоключ]: " << data.key << endl;
+            if (data.encrypt) {
+                cout << "Введите ключ (Enter — автогенерация, 0 — назад): ";
+            } else {
+                cout << "Введите ключ (0 — назад): ";
             }
+            getline(cin, data.key);
+            
+            if (data.key == "0") return {};
+            
+            // генерация только при шифре
+            if (data.key.empty()) {
+                if (data.encrypt) {
+                    data.key = autoGenerateKey(cipher.name, data.text.length());
+                    cout << "[Автоключ]: " << data.key << endl;
+                } else {
+                    throw runtime_error("Ключ обязателен при дешифровке.");
+                }
+            }
+            
+            
 
             return data;
 

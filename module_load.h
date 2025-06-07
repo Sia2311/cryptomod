@@ -1,17 +1,11 @@
 #pragma once
 #include <string>
 #include <vector>
-using namespace std;
 
-#ifdef _WIN32
-    #include <windows.h>
-    using LibHandle = HMODULE;
-#else
-    using LibHandle = void*;
-#endif
+using namespace std; 
 
 struct CipherPlugin {
-    LibHandle handle;
+    void* handle;
     string name;
     string description;
     const char* (*encrypt)(const char*, const char*) = nullptr;

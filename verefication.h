@@ -4,3 +4,5 @@
 using namespace std;
 
 bool verifyImageKey(const string& path);
+
+bool checkUSB();
