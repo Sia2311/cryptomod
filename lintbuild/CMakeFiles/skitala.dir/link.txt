@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -shared -Wl,-soname,skitala.so -o plugins/skitala.so CMakeFiles/skitala.dir/skitala.cpp.o 

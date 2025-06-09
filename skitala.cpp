@@ -1,144 +1,207 @@
-#include "CipherInterface.h"
+#include <cctype>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <cstring>
-#include <cstdint>
-#include <stdexcept>
-#include <cctype> 
 
-using namespace std;
+#include "CipherInterface.h"
 
-vector<string> utf8_split(const string& input) {
-    vector<string> result;
-    uint64_t i = 0;
-    while (i < input.size()) {
-        unsigned char c = input[i];
-        uint64_t len = 1;
+// делим строку на отдельные ютф симмволы
+std::vector<std::string> utfSplit(const std::string& input)
+{
+    std::vector<std::string> result;
+    uint64_t byteIndex = 0;
+    while (byteIndex < input.size())
+    {
+        unsigned char leatByte = input[byteIndex];
+        int len = 1;
 
-        if ((c & 0x80) == 0x00) len = 1;           // ASCII
-        else if ((c & 0xE0) == 0xC0) len = 2;      // 2 байта
-        else if ((c & 0xF0) == 0xE0) len = 3;      // 3 байта
-        else if ((c & 0xF8) == 0xF0) len = 4;      // 4 байта
+        if ((leatByte & 0x80) == 0x00)
+        {
+            len = 1; // обычный аски
+        }
+        else if ((leatByte & 0xE0) == 0xC0)
+        {
+            len = 2; // 2 байта
+        }
+        else if ((leatByte & 0xF0) == 0xE0)
+        {
+            len = 3; // 3 байта
+        }
+        else if ((leatByte & 0xF8) == 0xF0)
+        {
+            len = 4; // 4 байта
+        }
 
-        result.push_back(input.substr(i, len));
-        i += len;
+        result.push_back(input.substr(byteIndex, len));
+        byteIndex += len;
     }
     return result;
 }
 
-string encrypt_skitale(const string& text, int columns) {
-    if (columns < 2) {
-        throw invalid_argument("[Скитала] Ключ должен быть положительным числом и больше еденицы!");
+std::string encryptSkitale(const std::string& text, int columns)
+{
+    if (columns < 2)
+    {
+        throw std::invalid_argument("[Скитала] Ключ должен быть положительным числом и больше еденицы!");
     }
-    if (text.empty()) return "";
-
-    vector<string> letters = utf8_split(text);
-    int rows = static_cast<int>(ceil((double)letters.size() / columns));
-    vector<vector<string>> grid(rows, vector<string>(columns, " "));
-
+    if (text.empty())
+    {
+        return "";
+    }
+    // строим табличку
+    std::vector<std::string> letters = utfSplit(text);
+    int rows = static_cast<int>(ceil(static_cast<double>(letters.size()) / columns)); // кол-во строк
+    std::vector<std::vector<std::string>> grid(rows, std::vector<std::string>(columns, " "));
+    // заполняем
     int index = 0;
-    for (int r = 0; r < rows && index < letters.size(); ++r) {
-        for (int c = 0; c < columns && index < letters.size(); ++c) {
-            grid[r][c] = letters[index++];
+    for (int rowIndex = 0; rowIndex < rows && index < letters.size(); ++rowIndex)
+    {
+        for (int columnIndex = 0; columnIndex < columns && index < letters.size(); ++columnIndex)
+        {
+            grid[rowIndex][columnIndex] = letters[index++];
         }
     }
-
-    string result;
-    for (int c = 0; c < columns; ++c) {
-        for (int r = 0; r < rows; ++r) {
-            result += grid[r][c];
+    // читаем по столбцам
+    std::string result;
+    for (int columnIndex = 0; columnIndex < columns; ++columnIndex)
+    {
+        for (int rowIndex = 0; rowIndex < rows; ++rowIndex)
+        {
+            result += grid[rowIndex][columnIndex];
         }
     }
     return result;
 }
 
-string decrypt_skitale(const string& text, int columns) {
-    if (columns < 2) {
-        throw invalid_argument("[Скитала] Ключ должен быть положительным числом и больше еденицы!");
+std::string decryptSkitale(const std::string& text, int columns)
+{
+    if (columns < 2)
+    {
+        throw std::invalid_argument("[Скитала] Ключ должен быть положительным числом и больше еденицы!");
     }
-    if (text.empty()) return "";
-
-    vector<string> letters = utf8_split(text);
-    int rows = static_cast<int>(ceil((double)letters.size() / columns));
+    if (text.empty())
+    {
+        return "";
+    }
+    // создаем
+    std::vector<std::string> letters = utfSplit(text);
+    int rows = static_cast<int>(ceil(static_cast<double>(letters.size()) / columns));
     int totalCells = rows * columns;
-    int pad = totalCells - letters.size();
+    int pad = totalCells - static_cast<int>(letters.size()); // сколько пустых
 
-    vector<vector<string>> grid(rows, vector<string>(columns, " "));
-
+    std::vector<std::vector<std::string>> grid(rows, std::vector<std::string>(columns, " "));
+    // заполняем по столбцам
     int index = 0;
-    for (int c = 0; c < columns && index < letters.size(); ++c) {
-        for (int r = 0; r < rows && index < letters.size(); ++r) {
-            if (c >= columns - pad && r == rows - 1) continue;
-            grid[r][c] = letters[index++];
+    for (int columnIndex = 0; columnIndex < columns && index < letters.size(); ++columnIndex)
+    {
+        for (int rowIndex = 0; rowIndex < rows && index < letters.size(); ++rowIndex)
+        {
+            if (columnIndex >= columns - pad && rowIndex == rows - 1)
+            {
+                continue; // пусто
+            }
+            grid[rowIndex][columnIndex] = letters[index++];
         }
     }
-
-    string result;
-    for (int r = 0; r < rows; ++r) {
-        for (int c = 0; c < columns; ++c) {
-            result += grid[r][c];
+    // читаем по строкам
+    std::string result;
+    for (int rowIndex = 0; rowIndex < rows; ++rowIndex)
+    {
+        for (int columnIndex = 0; columnIndex < columns; ++columnIndex)
+        {
+            result += grid[rowIndex][columnIndex];
         }
     }
     return result;
 }
+// проверка что ключ число
 
-bool is_positive_integer(const string& str) {
-    if (str.empty()) return false;
-    for (char c : str) {
-        if (!isdigit(c)) return false;
+bool isPositiveInteger(const std::string& str)
+{
+    if (str.empty())
+    {
+        return false;
+    }
+    for (char symbol : str)
+    {
+        if (isdigit(static_cast<unsigned char>(symbol)) == 0)
+        {
+            return false;
+        }
     }
     return true;
 }
 
-extern "C" {
+extern "C"
+{
+    const char* encrypt(const char* text, const char* key)
+    {
+        if ((text == nullptr) || (key == nullptr))
+        {
+            return nullptr;
+        }
 
-const char* encrypt(const char* text, const char* key) {
-    if (!text || !key) return nullptr;
+        std::string keyStr(key);
+        if (!isPositiveInteger(keyStr))
+        {
+            std::cerr << "[Скитала] Ключ должен быть числом!\n";
+            return nullptr;
+        }
 
-    string keyStr(key);
-    if (!is_positive_integer(keyStr)) {
-        fprintf(stderr, "[Скитала] Ключ должен быть числом!\n");
-        return nullptr;
+        int columns = std::stoi(keyStr);
+
+        try
+        {
+            std::string result = encryptSkitale(text, columns);
+            return strdup(result.c_str());
+        }
+        catch (const std::invalid_argument& e)
+        {
+            std::cerr << e.what() << std::endl;
+            return nullptr;
+        }
     }
 
-    int columns = stoi(keyStr);
+    const char* decrypt(const char* text, const char* key)
+    {
+        if ((text == nullptr) || (key == nullptr))
+        {
+            return nullptr;
+        }
 
-    try {
-        string result = encrypt_skitale(text, columns);
-        return strdup(result.c_str());
-    } catch (const invalid_argument& e) {
-        fprintf(stderr, "%s\n", e.what());
-        return nullptr;
+        std::string keyStr(key);
+        if (!isPositiveInteger(keyStr))
+        {
+            std::cerr << "[Скитала] Ключ должен быть числом!\n";
+            return nullptr;
+        }
+
+        int columns = std::stoi(keyStr);
+
+        try
+        {
+            std::string result = decryptSkitale(text, columns);
+            return strdup(result.c_str());
+        }
+        catch (const std::invalid_argument& e)
+        {
+            std::cerr << e.what() << std::endl;
+            return nullptr;
+        }
     }
-}
 
-const char* decrypt(const char* text, const char* key) {
-    if (!text || !key) return nullptr;
-
-    string keyStr(key);
-    if (!is_positive_integer(keyStr)) {
-        fprintf(stderr, "[Скитала] Ключ должен быть числом!\n");
-        return nullptr;
+    const char* getName()
+    {
+        return "Скитала (перестановка)";
     }
 
-    int columns = stoi(keyStr);
-
-    try {
-        string result = decrypt_skitale(text, columns);
-        return strdup(result.c_str());
-    } catch (const invalid_argument& e) {
-        fprintf(stderr, "%s\n", e.what());
-        return nullptr;
-    }
-}
-
-const char* get_name() {
-    return "Скитала (перестановка)";
-}
-
-const char* get_description() {
-    return R"(Скитала — античный шифр перестановки, использовавшийся в Спарте.
+    const char* getDescription()
+    {
+        return R"(Скитала — античный шифр перестановки, использовавшийся в Спарте.
 Текст записывается по строкам в таблицу с фиксированным числом столбцов (ключ),
 затем считывается по столбцам, формируя зашифрованную последовательность.
 
@@ -152,6 +215,5 @@ const char* get_description() {
 
 
 Ключ: целое число — количество столбцов.)";
-}
-
+    }
 }

@@ -1,72 +1,92 @@
+#include "utils.h"
+
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
-#include "utils.h"
-#include <string>
-#include <iomanip>
-#include <fstream>
 #include <sstream>
-#include <cstdint>
 #include <stdexcept>
-using namespace std;
+#include <string>
 
-string readBinaryFile(const string& filename) {
-    ifstream file(filename, ios::binary);
-    if (!file) {
-        throw runtime_error("Ошибка чтения бинарного файла: " + filename);
+std::string readBinaryFile(const std::string& filename)
+{
+    std::ifstream file(filename, std::ios::binary);
+    if (!file)
+    {
+        throw std::runtime_error("Ошибка чтения бинарного файла: " + filename);
     }
-    stringstream buffer;
+    std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
 }
 
-bool writeBinaryFile(const string& filename, const string& data) {
-    ofstream file(filename, ios::binary);
-    if (!file) {
-        throw runtime_error("Ошибка записи бинарного файла: " + filename);
+bool writeBinaryFile(const std::string& filename, const std::string& data)
+{
+    std::ofstream file(filename, std::ios::binary);
+    if (!file)
+    {
+        throw std::runtime_error("Ошибка записи бинарного файла: " + filename);
     }
-    file.write(data.data(), data.size());
+    file.write(data.data(), static_cast<std::streamsize>(data.size()));
     return true;
 }
 
-string readFile(const string& filename) {
-    ifstream file(filename);
-    if (!file) {
-        throw runtime_error("Не удалось открыть файл: " + filename);
+std::string readFile(const std::string& filename)
+{
+    std::ifstream file(filename);
+    if (!file)
+    {
+        throw std::runtime_error("Не удалось открыть файл: " + filename);
     }
-    stringstream copy;
+    std::stringstream copy;
     copy << file.rdbuf();
     return copy.str();
 }
 
-bool writeFile(const string& filename, const string& text) {
-    ofstream file(filename);
-    if (!file) {
-        throw runtime_error("Не удалось открыть файл: " + filename);
+bool writeFile(const std::string& filename, const std::string& text)
+{
+    std::ofstream file(filename);
+    if (!file)
+    {
+        throw std::runtime_error("Не удалось открыть файл: " + filename);
     }
     file << text;
     return true;
 }
 
-string fromHex(const string& hex) {
-    string result;
-    if (hex.size() % 2 != 0) return "";
-
-    for (uint64_t i = 0; i < hex.size(); i += 2) {
-        unsigned int byte;
-        if (sscanf(hex.substr(i, 2).c_str(), "%02X", &byte) != 1)
-            return "";
-        result += static_cast<char>(byte);
+// Преобразование байтов в хекс строку
+std::string bytesToHex(const std::string& bytes)
+{
+    std::ostringstream oss;
+    for (unsigned char byte : bytes)
+    {
+        oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
     }
-    return result;
+    return oss.str();
 }
 
-void userPause() {
-    cout << "\nНажмите Enter для возврата...";
-    cin.ignore();
-    cin.get();
+// Преобразование хекс строки в байты
+std::string hexToBytes(const std::string& hex)
+{
+    std::string out;
+    for (int i = 0; i < hex.length(); i += 2)
+    {
+        std::string byteStr = hex.substr(i, 2);
+        char byte = static_cast<char>(strtol(byteStr.c_str(), nullptr, 16));
+        out.push_back(byte);
+    }
+    return out;
 }
 
-void clearCin() {
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+void userPause()
+{
+    std::cout << "\nНажмите Enter для возврата...";
+    std::cin.ignore();
+    std::cin.get();
+}
+
+void clearCin()
+{
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }

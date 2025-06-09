@@ -1,5 +1,4 @@
-#include <string>
 #include <cstdint>
-using namespace std;
+#include <string>
 
-string autoGenerateKey(const string& cipherName, uint64_t textLength);
+std::string autoGenerateKey(const std::string& cipherName, uint64_t textLength);

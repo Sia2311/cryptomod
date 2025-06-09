@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -g -shared -Wl,-soname,codeword.so -o plugins/codeword.so CMakeFiles/codeword.dir/codeWord.cpp.o 

@@ -1,0 +1,88 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-631e33f91e399288ac66.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "CryptoMod",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "codeword::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-codeword-Debug-2b4b3a650a3d913fb6e8.json",
+					"name" : "codeword",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cryptomod::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cryptomod-Debug-e4952317a4fa5e304b13.json",
+					"name" : "cryptomod",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "skitala::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-skitala-Debug-076927d54d8f7be9bd9a.json",
+					"name" : "skitala",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "xor::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-xor-Debug-f5fd87d0acc32e8a65b5.json",
+					"name" : "xor",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/admins/cryptomod/build",
+		"source" : "/home/admins/cryptomod"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

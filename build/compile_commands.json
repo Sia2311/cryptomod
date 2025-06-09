@@ -1,0 +1,56 @@
+[
+{
+  "directory": "/home/admins/cryptomod/build",
+  "command": "/usr/bin/c++   -g -std=gnu++17 -o CMakeFiles/cryptomod.dir/main.cpp.o -c /home/admins/cryptomod/main.cpp",
+  "file": "/home/admins/cryptomod/main.cpp",
+  "output": "CMakeFiles/cryptomod.dir/main.cpp.o"
+},
+{
+  "directory": "/home/admins/cryptomod/build",
+  "command": "/usr/bin/c++   -g -std=gnu++17 -o CMakeFiles/cryptomod.dir/generator.cpp.o -c /home/admins/cryptomod/generator.cpp",
+  "file": "/home/admins/cryptomod/generator.cpp",
+  "output": "CMakeFiles/cryptomod.dir/generator.cpp.o"
+},
+{
+  "directory": "/home/admins/cryptomod/build",
+  "command": "/usr/bin/c++   -g -std=gnu++17 -o CMakeFiles/cryptomod.dir/inputOutput.cpp.o -c /home/admins/cryptomod/inputOutput.cpp",
+  "file": "/home/admins/cryptomod/inputOutput.cpp",
+  "output": "CMakeFiles/cryptomod.dir/inputOutput.cpp.o"
+},
+{
+  "directory": "/home/admins/cryptomod/build",
+  "command": "/usr/bin/c++   -g -std=gnu++17 -o CMakeFiles/cryptomod.dir/module_load.cpp.o -c /home/admins/cryptomod/module_load.cpp",
+  "file": "/home/admins/cryptomod/module_load.cpp",
+  "output": "CMakeFiles/cryptomod.dir/module_load.cpp.o"
+},
+{
+  "directory": "/home/admins/cryptomod/build",
+  "command": "/usr/bin/c++   -g -std=gnu++17 -o CMakeFiles/cryptomod.dir/utils.cpp.o -c /home/admins/cryptomod/utils.cpp",
+  "file": "/home/admins/cryptomod/utils.cpp",
+  "output": "CMakeFiles/cryptomod.dir/utils.cpp.o"
+},
+{
+  "directory": "/home/admins/cryptomod/build",
+  "command": "/usr/bin/c++   -g -std=gnu++17 -o CMakeFiles/cryptomod.dir/verefication.cpp.o -c /home/admins/cryptomod/verefication.cpp",
+  "file": "/home/admins/cryptomod/verefication.cpp",
+  "output": "CMakeFiles/cryptomod.dir/verefication.cpp.o"
+},
+{
+  "directory": "/home/admins/cryptomod/build",
+  "command": "/usr/bin/c++ -Dxor_EXPORTS  -g -std=gnu++17 -fPIC -o CMakeFiles/xor.dir/xor.cpp.o -c /home/admins/cryptomod/xor.cpp",
+  "file": "/home/admins/cryptomod/xor.cpp",
+  "output": "CMakeFiles/xor.dir/xor.cpp.o"
+},
+{
+  "directory": "/home/admins/cryptomod/build",
+  "command": "/usr/bin/c++ -Dskitala_EXPORTS  -g -std=gnu++17 -fPIC -o CMakeFiles/skitala.dir/skitala.cpp.o -c /home/admins/cryptomod/skitala.cpp",
+  "file": "/home/admins/cryptomod/skitala.cpp",
+  "output": "CMakeFiles/skitala.dir/skitala.cpp.o"
+},
+{
+  "directory": "/home/admins/cryptomod/build",
+  "command": "/usr/bin/c++ -Dcodeword_EXPORTS  -g -std=gnu++17 -fPIC -o CMakeFiles/codeword.dir/codeWord.cpp.o -c /home/admins/cryptomod/codeWord.cpp",
+  "file": "/home/admins/cryptomod/codeWord.cpp",
+  "output": "CMakeFiles/codeword.dir/codeWord.cpp.o"
+}
+]

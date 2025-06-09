@@ -1,0 +1,30 @@
+BasedOnStyle: LLVM          
+IndentWidth: 4              
+ColumnLimit: 130            
+
+BreakBeforeBraces: Allman   
+
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+
+BinPackParameters: false    # Каждый параметр — на новой строке 
+BinPackArguments: false
+
+DerivePointerAlignment: false
+PointerAlignment: Left      
+
+SpacesInAngles: false
+SpaceAfterCStyleCast: true
+SpaceBeforeParens: ControlStatements  
+
+AlwaysBreakTemplateDeclarations: Yes
+SortIncludes: true
+
+AlignTrailingComments: true
+ReflowComments: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+Cpp11BracedListStyle: true

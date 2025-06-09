@@ -1,14 +1,14 @@
 #pragma once
 #include <string>
+
 #include "module_load.h"
 
-using namespace std;
-
-struct InputData {
-    string text;
-    string key;
+struct InputData
+{
+    std::string text;
+    std::string key;
     bool encrypt;
 };
 
 InputData getUserInput(const CipherPlugin& cipher);
-bool outputResult(const string& result, const CipherPlugin& cipher, bool encrypt);
+bool outputResult(const std::string& result, bool encrypt);

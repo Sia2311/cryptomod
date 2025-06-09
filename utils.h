@@ -1,21 +1,15 @@
 #pragma once
 
 #include <string>
-using namespace std;
 
-string stringToHex(const string& input);
+std::string readBinaryFile(const std::string& filename);
+bool writeBinaryFile(const std::string& filename, const std::string& data);
 
-string hexToString(const string& hex);
+std::string readFile(const std::string& filename);
+bool writeFile(const std::string& filename, const std::string& text);
 
-string readBinaryFile(const string& filename);
-
-bool writeBinaryFile(const string& filename, const string& data);
-
-string readFile(const string& filename);
-
-bool writeFile(const string& filename, const string& text);
-
-string fromHex(const string& hex);
+std::string bytesToHex(const std::string& bytes);
+std::string hexToBytes(const std::string& hex);
 
 void userPause();
 void clearCin();

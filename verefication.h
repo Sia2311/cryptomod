@@ -1,8 +1,7 @@
 #pragma once
 
 #include <string>
-using namespace std;
 
-bool verifyImageKey(const string& path);
+bool verifyImageKey(const std::string& path);
 
 bool checkUSB();

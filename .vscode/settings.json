@@ -1,7 +1,26 @@
 {
-    "files.associations": {
-        "string": "cpp",
-        "stdexcept": "cpp",
-        "fstream": "cpp"
-    }
+  // Отключаем встроенный движок Microsoft C++
+  "C_Cpp.intelliSenseEngine": "disabled",
+  // Указываем аргументы для clangd: включаем clang-tidy и путь к compile_commands.json
+  "clangd.arguments": [
+    "--clang-tidy",
+    "--compile-commands-dir=lintbuild",
+    "--clang-tidy-checks=*,-modernize-use-auto"
+  ],
+  // Указываем, что используем clangd как провайдер конфигурации
+  "C_Cpp.default.configurationProvider": "llvm-vs-code-extensions.vscode-clangd",
+  // Включаем автоформатирование при сохранении
+  "editor.formatOnSave": true,
+  // Указываем, что для C++ используем clang-format как форматтер
+  "[cpp]": {
+    "editor.defaultFormatter": "xaver.clang-format"
+  },
+  "clang-format.executable": "/usr/bin/clang-format",
+  // Ассоциации для заголовков и стандартных библиотек
+  "files.associations": {
+    "*.h": "cpp",
+    "string": "cpp",
+    "stdexcept": "cpp",
+    "fstream": "cpp"
+  }
 }

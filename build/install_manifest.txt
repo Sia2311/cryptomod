@@ -1,0 +1,6 @@
+/opt/CryptoMod/cryptomod
+/opt/CryptoMod/plugins/xor.so
+/opt/CryptoMod/plugins/codeword.so
+/opt/CryptoMod/plugins/skitala.so
+/opt/CryptoMod/icon.png
+/opt/CryptoMod/CryptoMod.desktop

@@ -1,0 +1,9 @@
+Architecture: amd64
+Description: CryptoMod built using CMake
+Maintainer: HACKER228
+Package: cryptomod
+Priority: optional
+Section: devel
+Version: 1.0.0
+Installed-Size: 1513
+

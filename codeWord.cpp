@@ -1,51 +1,55 @@
-#include "CipherInterface.h"
-#include <iostream>
-#include <vector>
 #include <cstdint>
-#include <set>
-#include <sstream>
-#include <iomanip>
 #include <cstring>
+#include <set>
+#include <string>
+#include <vector>
 
-
-using namespace std;
+#include "CipherInterface.h"
 
 // строим новый алфавит по ключу
-vector<uint8_t> buildingAlphabet(const string& key) {
-    vector<uint8_t> base(256);
-    for (int i = 0; i < 256; ++i) {
+std::vector<uint8_t> buildingAlphabet(const std::string& key)
+{
+    std::vector<uint8_t> base(256);
+    for (int i = 0; i < 256; ++i)
+    {
         base[i] = static_cast<uint8_t>(i);
     }
 
-    set<uint8_t> seen;
-    vector<uint8_t> result;
-
-    for (char c : key) {
-        uint8_t b = static_cast<uint8_t>(c);
-        if (!seen.count(b)) {
-            result.push_back(b);
-            seen.insert(b);
+    std::set<uint8_t> seen;
+    std::vector<uint8_t> result;
+    // заполняем байта из ключа
+    for (char keyChar : key)
+    {
+        uint8_t keyByte = static_cast<uint8_t>(keyChar);
+        if (seen.count(keyByte) == 0U)
+        {
+            result.push_back(keyByte);
+            seen.insert(keyByte);
         }
     }
-
-    for (uint8_t b : base) {
-        if (!seen.count(b)) {
-            result.push_back(b);
+    // остальные байты алфавита
+    for (uint8_t keyByte : base)
+    {
+        if (seen.count(keyByte) == 0U)
+        {
+            result.push_back(keyByte);
         }
     }
 
     return result;
 }
 
-// Перевод строки в HEX 
-string to_hex(const string& message) {
-    string output;
-    for (unsigned char i : message) {
-        int high = i / 16;
-        int low = i % 16;
+// Перевод строки в HEX
+std::string toHex(const std::string& message)
+{
+    std::string output;
+    for (unsigned char currentChar : message)
+    {
+        int high = currentChar / 16;
+        int low = currentChar % 16;
 
-        char first = (high < 10) ? ('0' + high) : ('A' + high - 10);
-        char second = (low < 10) ? ('0' + low) : ('A' + low - 10);
+        char first = static_cast<char>((high < 10) ? ('0' + high) : ('A' + high - 10));
+        char second = static_cast<char>((low < 10) ? ('0' + low) : ('A' + low - 10));
 
         output += first;
         output += second;
@@ -54,70 +58,86 @@ string to_hex(const string& message) {
 }
 
 // Преобразование хекса обратно в байты
-string fromHex(const string& hex) {
-    string result;
-    if (hex.size() % 2 != 0) return "";
-
-    for (uint64_t i = 0; i < hex.size(); i += 2) {
-        unsigned int byte;
-        if (sscanf(hex.substr(i, 2).c_str(), "%02X", &byte) != 1)
-            return "";
-        result += static_cast<char>(byte);
+std::string hexToBytes(const std::string& hex)
+{
+    std::string out;
+    for (int i = 0; i < hex.length(); i += 2)
+    { // по два символа
+        std::string byteStr = hex.substr(i, 2);
+        char byte = static_cast<char>(strtol(byteStr.c_str(), nullptr, 16));
+        out.push_back(byte);
     }
-    return result;
+    return out;
 }
 
-extern "C" {
+extern "C"
+{
+    const char* encrypt(const char* text, const char* key)
+    {
+        if ((text == nullptr) || (key == nullptr))
+        {
+            return nullptr;
+        }
+        // строим алфавит шифрования
+        std::vector<uint8_t> newAlphabet = buildingAlphabet(key);
+        uint8_t encryptMap[256];
+        for (int i = 0; i < 256; ++i)
+        {
+            encryptMap[i] = newAlphabet[i];
+        }
+        // заменяем по алфваиту
+        std::string input(text);
+        std::string encrypted;
+        encrypted.reserve(input.size());
 
- const char* encrypt(const char* text, const char* key) {
-    if (!text || !key) return nullptr;
+        for (unsigned char inputChar : input)
+        {
+            encrypted.push_back(static_cast<char>(encryptMap[static_cast<uint8_t>(inputChar)]));
+        }
 
-    vector<uint8_t> newAlphabet = buildingAlphabet(key);
-    uint8_t encrypt_map[256];
-    for (int i = 0; i < 256; ++i) {
-        encrypt_map[i] = newAlphabet[i];
+        std::string hex = toHex(encrypted);
+        return strdup(hex.c_str());
     }
 
-    string input(text);
-    string encrypted;
-    encrypted.reserve(input.size());
+    const char* decrypt(const char* hexText, const char* key)
+    {
+        if ((hexText == nullptr) || (key == nullptr))
+        {
+            return nullptr;
+        }
 
-    for (unsigned char c : input) {
-        encrypted.push_back(encrypt_map[static_cast<uint8_t>(c)]);
+        std::string byte = hexToBytes(hexText);
+        if (byte.empty())
+        {
+            return nullptr;
+        }
+        // строим обратную табличку
+        std::vector<uint8_t> alphabet = buildingAlphabet(key);
+        uint8_t decryptMap[256];
+        for (int i = 0; i < 256; ++i)
+        {
+            decryptMap[alphabet[i]] = static_cast<uint8_t>(i);
+        }
+        // дешифруем
+        std::string result;
+        result.reserve(byte.size());
+
+        for (unsigned char inputChar : byte)
+        {
+            result.push_back(static_cast<char>(decryptMap[static_cast<uint8_t>(inputChar)]));
+        }
+
+        return strdup(result.c_str());
     }
 
-    string hex = to_hex(encrypted);
-    return strdup(hex.c_str());
-}
-
- const char* decrypt(const char* hexText, const char* key) {
-    if (!hexText || !key) return nullptr;
-
-    string Byte = fromHex(hexText);
-    if (Byte.empty()) return nullptr;
-
-    vector<uint8_t> Alphabet = buildingAlphabet(key);
-    uint8_t decryptMap[256];
-    for (int i = 0; i < 256; ++i) {
-        decryptMap[Alphabet[i]] = static_cast<uint8_t>(i);
+    const char* getName()
+    {
+        return "Шифр кодового слова";
     }
 
-    string result;
-    result.reserve(Byte.size());
-
-    for (unsigned char c : Byte) {
-        result.push_back(decryptMap[static_cast<uint8_t>(c)]);
-    }
-
-    return strdup(result.c_str());  
-}
-
- const char* get_name() {
-    return "Шифр кодового слова";
-}
-
- const char* get_description() {
-    return R"(Шифр кодового слова — байтовая перестановка, основанная на введённом ключе.
+    const char* getDescription()
+    {
+        return R"(Шифр кодового слова — байтовая перестановка, основанная на введённом ключе.
 На его основе строится новый алфавит: сначала добавляются уникальные символы ключа в порядке появления,
 затем оставшиеся байты (0–255), не входящие в ключ.
 
@@ -133,6 +153,5 @@ extern "C" {
 Для расшифровки используется тот же ключ — алфавит восстанавливается в исходном порядке.
 
 Ключ: строка (ASCII или UTF-8). Регистр имеет значение. Результат шифрования выводится в виде HEX.)";
-}
-
+    }
 }
