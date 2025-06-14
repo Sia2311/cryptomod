@@ -10,7 +10,7 @@ AllowShortLoopsOnASingleLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 
-BinPackParameters: false    # Каждый параметр — на новой строке 
+BinPackParameters: false    # Каждый параметр  на новой строке 
 BinPackArguments: false
 
 DerivePointerAlignment: false

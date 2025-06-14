@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-# Получить пользователя, от имени которого шла установка
 INSTALL_USER="$SUDO_USER"
 if [ -z "$INSTALL_USER" ]; then
     echo "[!] Не удалось определить пользователя (SUDO_USER пуст). Пропуск настройки ярлыка и владельца."
@@ -12,18 +11,14 @@ INSTALL_HOME=$(getent passwd "$INSTALL_USER" | cut -d: -f6)
 DESKTOP_PATH="$INSTALL_HOME/Desktop"
 APP_DIR="/opt/CryptoMod"
 
-# Сменить владельца всех файлов приложения на обычного пользователя
 chown -R "$INSTALL_USER:$INSTALL_USER" "$APP_DIR"
 
-# Установить ярлык на рабочий стол
 cp "$APP_DIR/CryptoMod.desktop" "$DESKTOP_PATH/"
 chmod +x "$DESKTOP_PATH/CryptoMod.desktop"
 chown "$INSTALL_USER:$INSTALL_USER" "$DESKTOP_PATH/CryptoMod.desktop"
 
-# Сделать ярлык доверенным (если возможно)
 if command -v gio &>/dev/null; then
     sudo -u "$INSTALL_USER" gio set "$DESKTOP_PATH/CryptoMod.desktop" "metadata::trusted" yes 2>/dev/null || true
 fi
 
-# Создать симлинк в /usr/bin для запуска из консоли
 ln -sf "$APP_DIR/cryptomod" /usr/bin/cryptomod

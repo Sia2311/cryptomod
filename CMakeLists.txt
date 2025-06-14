@@ -36,20 +36,17 @@ set_target_properties(codeword PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_OUTPUT_DIR}
 )
 
-# Установка основного бинарника в /opt/CryptoMod
 install(TARGETS cryptomod DESTINATION /opt/CryptoMod)
 
-# Установка плагинов
+
 install(DIRECTORY ${PLUGIN_OUTPUT_DIR}/ DESTINATION /opt/CryptoMod/plugins FILES_MATCHING PATTERN "*.so")
 
-# Установка ресурсов
 install(FILES
     icon.png
     CryptoMod.desktop
     DESTINATION /opt/CryptoMod
 )
 
-# Указание postinst-скрипта и генерация DEB
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "cryptomod")
 set(CPACK_PACKAGE_VERSION "1.0.0")
